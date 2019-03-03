@@ -1,0 +1,30 @@
+[Config]
+Compilator.SaveAll=0
+Compilator.Capture=0
+Compilator.CompileOnBackground=0
+Compilator.ProgSaveAll=0
+Compilator.ProgRunSelection=0
+Compilator.LogType=0
+DefaultCP=0
+LogtoEnd=1
+DontOpen=0
+AbsolutePath=0
+FileFormat=0
+ProjectFilesOnly=0
+HTServer=localhost
+[Project tree]
+mindfield
+	+Folder
+		Mind Field.pas
+[Open project files]
+0=Mind Field.pas
+1=ASSETS_CHARSETS.RS.txt
+[Selected Project Files]
+Main=
+Selected=Mind Field.pas
+[Mind Field.pas]
+TopLine=28
+Caret=3,61
+[ASSETS_CHARSETS.RS.txt]
+TopLine=1
+Caret=40,1
