@@ -18,13 +18,45 @@ mindfield
 		Mind Field.pas
 [Open project files]
 0=Mind Field.pas
-1=ASSETS_CHARSETS.RS.txt
+1=..\base\cpu6502.asm
+2=..\lib\atari5200.pas
+3=..\lib\sysutils.pas
+4=..\lib\clipping.pas
+5=..\lib\cmc.pas
+6=..\lib\system.pas
+7=..\__MindField.txt
+8=..\base\6502\cpu6502_single.asm
+9=..\lib\crt.pas
 [Selected Project Files]
 Main=
-Selected=Mind Field.pas
+Selected=..\lib\atari5200.pas
 [Mind Field.pas]
-TopLine=28
-Caret=3,61
-[ASSETS_CHARSETS.RS.txt]
 TopLine=1
-Caret=40,1
+Caret=1,2
+[..\base\cpu6502.asm]
+TopLine=1324
+Caret=12,1348
+[..\lib\atari5200.pas]
+TopLine=10
+Caret=27,30
+[..\lib\sysutils.pas]
+TopLine=1
+Caret=1,1
+[..\lib\clipping.pas]
+TopLine=1
+Caret=1,1
+[..\lib\cmc.pas]
+TopLine=1
+Caret=1,1
+[..\lib\system.pas]
+TopLine=1403
+Caret=21,1427
+[..\__MindField.txt]
+TopLine=270
+Caret=23,294
+[..\base\6502\cpu6502_single.asm]
+TopLine=344
+Caret=1,344
+[..\lib\crt.pas]
+TopLine=249
+Caret=12,273
