@@ -1,6 +1,7 @@
-uses atari, graph, crt, sysutils;    // CRT using 8-bit OS!  
+program Mind_Field_Cartridge;
+uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries independant from OS!
+    
 // uses atari, crt, sysutils;
-// DOES PASCAL HAVE INCLUDE????
 
 
 // Pascal Reserved Words
@@ -16,6 +17,7 @@ uses atari, graph, crt, sysutils;    // CRT using 8-bit OS!
 
     
 const
+  {$R 'resources.rc'}
 	PRIOR									= $D01B;
   TEMP0									= $C0;
   TEMP1									= $C1;
@@ -61,6 +63,7 @@ const
   SCREEN_LINE_ADDR_LOW	= PMBANK+$0000;
   SCREEN_LINE_ADDR_HIGH	= PMBANK+$0020;
   CHARSET_ADDRESS       = $A400;
+  CHARSET_BASE					= $A4;
 
 
 
@@ -84,11 +87,11 @@ const
   PMBNK2	              = PMBANK+$0600;
   PMBNK3	              = PMBANK+$0700;
      
-  display_list_title: array [0..29] of byte = (
-  $70,$30,$43,
+  display_list_title: array [0..50] of byte = (
+  $70,$70,$44,
   lo(screen_adr),
   hi(screen_adr),
-  $03,$03,$03,$03,$00,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$41,
+  $04,$04,$04,$04,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
   lo(word(@display_list_title)), 
   hi(word(@display_list_title))
   );
@@ -113,10 +116,6 @@ var
   hiscore  : array [0..10] of word = (0,7500,5500,3500,2500,0500,00,00,00,00,0);
   topMem : word;
   chbase1 : byte;
-
-
-
-   
 
 procedure ShowTitleScreen;
 begin
@@ -148,30 +147,30 @@ asm {
     STA NDX1
     LDA #$A8
     STA NDX3
-    
-  
-  
-};
-  
-  ClrScr;  
-  CursorOff;
-  DLISTW := word(@display_list_title);
-	sdlstw := word(@display_list_title); 	 
+    };		
+			 
+  CRT_INIT (screen_adr,40,18);
+	CRT_CLEAR;  
+  DLISTW := word(@display_list_title); 	 
+  sdlstw := word(@display_list_title); 
   SAVMSC := word(screen_adr); 
-  GotoXY(0, 3);  
-  writeln('               Mind Field              ');
-  GotoXY(0, 6); 
-  writeln('           Atari 8-Bit Version         ');
-  writeln(' Programmers:           Peter J. Meyer ');
-//writeln('             (Your name could be here) ');
-//writeln(' Graphicsming                          ');
-//writeln(' Sound                                 ');        
+  SetCharset(HI(CHARSET_ADDRESS));
+  chbas := HI(CHARSET_ADDRESS);
+	CRT_GotoXY(0, 0);  
+  CRT_WRITE('               MIND FIELD              '~*);
+  CRT_GotoXY(0, 6); 
+  CRT_WRITE('           ATARI 8-BIT VERSION          '~);
+  CRT_WRITE(' PROGRAMMING             PETER J. MEYER '~);
+  CRT_WRITE('              (YOUR NAME COULD BE HERE) '~);
+  CRT_WRITE(' GRAPHICS                               '~);
+  CRT_WRITE(' SOUND AND MUSIC                        '~);        
   
 	color1:=010;
-	color2:=128;
+	color2:=186;
+	color4:=34;
   
-  k := 11;
-  i := 10;
+  k := 6;
+  i := 5;
  dmactl :=62;
  nmien :=64;
  
@@ -182,46 +181,42 @@ asm {
         end;
       i := i - 1    
   until i = 0;
-  if k < 10 then 
+  if k < 5 then 
     begin;
-      i := 10;  
+      i := 5;  
       repeat
         hiscore [i] := hiscore [i-1];
         i := i - 1    
       until i = k;
       hiscore [k] := score
     end;
-   GotoXY(12, 9); 
-   write('Score:',score);
-   GotoXY (8,10);
-   write ('Todays High Scores.');
-   for i := 1 to 10 do
+   CRT_GotoXY(10, 13); 
+   CRT_WRITE('SCORE : '~);
+   CRT_GOTOXY(18, 13);
+   CRT_WRITE (score);
+   CRT_GotoXY (8,15);
+   CRT_WRITE ('TODAYS HIGH SCORES.'~);
+   for i := 1 to 5 do
     begin;
       if k = i then
         begin 
-          GotoXY(12,11+i);
-          write('*');
+          CRT_GOTOXY(12,16+i);
+          CRT_WRITE('*'~);
         end;
-      if i = 10 then
-        begin
-          GotoXY(13, 11+i);
-        end
-      else
-        begin
-          GotoXY(14, 11+i);
-        end;
-      write (i,' :');
-      GotoXY(18, 11+i);      
-      write(hiscore[i]);
+      CRT_GOTOXY(14, 16+i);  
+      CRT_WRITE (i);
+      CRT_WRITE (' :'~);
+      CRT_GotoXY(18, 16+i);      
+      CRT_WRITE(hiscore[i]);
      end;  
-   GotoXY(7, 22);
-   write('Press Start to Begin.');
+   CRT_GotoXY(7, 23);
+   CRT_WRITE('PRESS START TO BEGIN.'~);
    poke (hposp0,124);
    
 
    
    
- repeat until keypressed;
+ repeat until CRT_KeyPressed;
  
  
 // asm {    
@@ -256,5 +251,8 @@ SCRTXT              = $0440
 };
 
 
-end.
 
+
+end.
+ 
+ 

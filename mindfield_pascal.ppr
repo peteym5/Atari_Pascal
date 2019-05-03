@@ -1,0 +1,42 @@
+[Config]
+Compilator.SaveAll=0
+Compilator.Capture=0
+Compilator.CompileOnBackground=0
+Compilator.ProgSaveAll=0
+Compilator.ProgRunSelection=0
+Compilator.LogType=0
+DefaultCP=0
+LogtoEnd=1
+DontOpen=0
+AbsolutePath=0
+FileFormat=0
+ProjectFilesOnly=0
+HTServer=localhost
+[Project tree]
+mindfield_pascal
+	+Folder
+		..\..\Mads Projects\cc65\Mind Field C\Mind Field.c
+[Open project files]
+0=ASSETS_CHARSETS.RS
+1=Mind Field.pas
+2=Mind Field.a65
+3=..\lib\sysutils.pas
+4=__MindField.txt
+[Selected Project Files]
+Main=
+Selected=__MindField.txt
+[ASSETS_CHARSETS.RS]
+TopLine=1
+Caret=1,1
+[Mind Field.pas]
+TopLine=152
+Caret=14,167
+[Mind Field.a65]
+TopLine=1013
+Caret=14,1038
+[..\lib\sysutils.pas]
+TopLine=374
+Caret=18,385
+[__MindField.txt]
+TopLine=7808
+Caret=16,7832
