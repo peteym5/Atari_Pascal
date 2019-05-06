@@ -18,75 +18,13 @@ uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries indepen
     
 const
   {$R 'resources.rc'}
-	PRIOR									= $D01B;
-  TEMP0									= $C0;
-  TEMP1									= $C1;
-  TEMP2									= $C2;
-  TEMP3									= $C3;
-  TEMP4									= $C4;
-  TEMP5									= $C5;
-  TEMP6									= $C6;
-  TEMP7									= $C7;
-  TEMP8									= $C8;
-  TEMP9									= $C9;
-  NDX0									= $CA;
-  NDX1									= $CB;
-  NDX2									= $CC;
-  NDX3									= $CD;
-  HOLDX									= $CE;
-  HOLDY									= $CF;
-    
-  M0										= $C0;
-  M1										= $C1;
-  M2										= $C2;
-  M3										= $C3;
-  M4										= $C4;
-  M5										= $C5;
-  M6										= $C6;
-  M7										= $C7;
-  M8										= $C8;
-  M9										= $C9;
-  MX    								= $CE;
-  MY        						= $CF;
-
-	
+     
 	screen_adr 						= 16384;
   PMBANK                = $1000;
   VARBANK               = $1800;
-  SPRITENUM	            = PMBANK+$0180;
-  SETSP0COLOR           = PMBANK+$0190;
-  SETSP1COLOR           = PMBANK+$01A0;
-  SETSPWIDTH            = PMBANK+$01B0;
-  SPRITENHOZ            = PMBANK+$01C0;
-  SPRITENVRT            = PMBANK+$01E0;
-  SPHOZNEXT             = PMBANK+$01F0;
-  SCREEN_LINE_ADDR_LOW	= PMBANK+$0000;
-  SCREEN_LINE_ADDR_HIGH	= PMBANK+$0020;
-  CHARSET_ADDRESS       = $A400;
-  CHARSET_BASE					= $A4;
+	CHARSET_ADDRESS       = $A400;
+	CHARSET_BASE					= $A4;
 
-
-
-  SPRHZ0		            = PMBANK+$0200;
-  SPRHZ1		            = PMBANK+$0210;
-  SPRHZ2		            = PMBANK+$0220;
-  SPRHZ3		            = PMBANK+$0230;
-  SPZONT                = PMBANK+$0240;
-  SPZONB                = PMBANK+$0250;
-
-  SPSRC0                = PMBANK+$0260; 
-  SPSRC1                = PMBANK+$0278;
-  SPSRC2                = PMBANK+$0290;
-  SPSRC3                = PMBANK+$02A8;
-  SPSRC4                = PMBANK+$02C0;
-  SPRITEUSE             = PMBANK+$02D8;
-
-  MIBANK                = PMBANK+$0300;
-  PMBNK0	              = PMBANK+$0400;
-  PMBNK1	              = PMBANK+$0500;
-  PMBNK2	              = PMBANK+$0600;
-  PMBNK3	              = PMBANK+$0700;
-     
   display_list_title: array [0..50] of byte = (
   $70,$70,$44,
   lo(screen_adr),
@@ -106,6 +44,54 @@ const
   );
   
 var
+  PRIOR								    : byte absolute $D01B;
+  TMP0								    : byte absolute $C0;
+  TMP1								    : byte absolute $C1;
+  TMP2								    : byte absolute $C2;
+  TMP3								    : byte absolute $C3;
+  TMP4								    : byte absolute $C4;
+  TMP5								    : byte absolute $C5;
+  TMP6								    : byte absolute $C6;
+  TMP7								    : byte absolute $C7;
+  TMP8								    : byte absolute $C8;
+  TMP9								    : byte absolute $C9;
+  NDX0								    : byte absolute $CA;
+  NDX1								    : byte absolute $CB;
+  NDX2								    : byte absolute $CC;
+  NDX3								    : byte absolute $CD;
+  HOLDX								    : byte absolute $CE;
+  HOLDY								    : byte absolute $CF;
+    
+  SPRITENUM	              : byte absolute PMBANK+$0180;
+  SETSP0COLOR             : byte absolute PMBANK+$0190;
+  SETSP1COLOR             : byte absolute PMBANK+$01A0;
+  SETSPWIDTH              : byte absolute PMBANK+$01B0;
+  SPRITENHOZ              : byte absolute PMBANK+$01C0;
+  SPRITENVRT              : byte absolute PMBANK+$01E0;
+  SPHOZNEXT               : byte absolute PMBANK+$01F0;
+  SCREEN_LINE_ADDR_LOW  	: byte absolute PMBANK+$0000;
+  SCREEN_LINE_ADDR_HIGH 	: byte absolute PMBANK+$0020;
+  
+  SPRHZ0		              : byte absolute PMBANK+$0200;
+  SPRHZ1		              : byte absolute PMBANK+$0210;
+  SPRHZ2		              : byte absolute PMBANK+$0220;
+  SPRHZ3		              : byte absolute PMBANK+$0230;
+  SPZONT                  : byte absolute PMBANK+$0240;
+  SPZONB                  : byte absolute PMBANK+$0250;
+
+  SPSRC0                  : byte absolute PMBANK+$0260; 
+  SPSRC1                  : byte absolute PMBANK+$0278;
+  SPSRC2                  : byte absolute PMBANK+$0290;
+  SPSRC3                  : byte absolute PMBANK+$02A8;
+  SPSRC4                  : byte absolute PMBANK+$02C0;
+  SPRITEUSE               : byte absolute PMBANK+$02D8;
+
+  MIBANK                  : byte absolute PMBANK+$0300;
+  PMBNK0	                : byte absolute PMBANK+$0400;
+  PMBNK1	                : byte absolute PMBANK+$0500;
+  PMBNK2	                : byte absolute PMBANK+$0600;
+  PMBNK3	                : byte absolute PMBANK+$0700;
+
   screen :word = $B000;	
   i : Byte;
   j : Byte;
@@ -113,6 +99,7 @@ var
   
 	titlephase: Byte = 0;
   score: word = 4250;
+  lives : Byte;
   hiscore  : array [0..10] of word = (0,7500,5500,3500,2500,0500,00,00,00,00,0);
   topMem : word;
   chbase1 : byte;
@@ -149,14 +136,15 @@ asm {
     STA NDX3
     };		
 			 
-  CRT_INIT (screen_adr,40,18);
-	CRT_CLEAR;  
+  CRT_INIT (screen_adr,40,23);
+  CRT_CLEAR;  
   DLISTW := word(@display_list_title); 	 
-  sdlstw := word(@display_list_title); 
+  SDLSTW := word(@display_list_title); 
   SAVMSC := word(screen_adr); 
-  SetCharset(HI(CHARSET_ADDRESS));
-  chbas := HI(CHARSET_ADDRESS);
-	CRT_GotoXY(0, 0);  
+  SETCHARSET(HI(CHARSET_ADDRESS));
+  CHBAS := HI(CHARSET_ADDRESS);
+  CRT_GotoXY(0, 0);  
+ 
   CRT_WRITE('               MIND FIELD              '~*);
   CRT_GotoXY(0, 6); 
   CRT_WRITE('           ATARI 8-BIT VERSION          '~);
@@ -164,16 +152,19 @@ asm {
   CRT_WRITE('              (YOUR NAME COULD BE HERE) '~);
   CRT_WRITE(' GRAPHICS                               '~);
   CRT_WRITE(' SOUND AND MUSIC                        '~);        
-  
-	color1:=010;
-	color2:=186;
-	color4:=34;
+ TMP5:=0; 
   
   k := 6;
   i := 5;
  dmactl :=62;
  nmien :=64;
  
+
+	colpf0:=142;	
+	colpf1:=010;
+	colpf2:=186;
+	colpf3:=54;
+	colbk:=34;
   repeat     
       if score>hiscore[i] then 
         begin;
@@ -211,28 +202,50 @@ asm {
      end;  
    CRT_GotoXY(7, 23);
    CRT_WRITE('PRESS START TO BEGIN.'~);
-   poke (hposp0,124);
+   poke (hposp0,124);      
    
+ repeat 
+     
+		  
+		 
+		    // if CRT_OptionPressed then 
+        // else CRT_Write(' OPTION '~);
 
-   
-   
- repeat until CRT_KeyPressed;
+        // if CRT_SelectPressed then CRT_Write(' SELECT '~*)
+        // else CRT_Write(' SELECT '~);
+
+        if CRT_StartPressed then TMP5:=255;
+
+        // if CRT_HelpPressed then CRT_Write(' HELP '~*)
+        // else CRT_Write(' HELP '~);
+ until tmp5=255;
+ 
+ //  repeat
+ //  until CRT_StartPressed = false;
  
  
-// asm {    
+asm {
+Title_VBI
+      
 //    ORG 32768
 //    ICL "inflate_2017_ver4.asm"
 //    ORG 46080
 //    INS "roman10.fnt" 
-// };
+};
 end;
 
-procedure init_game;
+
+procedure Initialize_Level;
 begin
-	DPOKE(560, word(@display_list_game));
-  DPOKE (88,screen_adr);
 end;
 
+procedure Display_Information_Line;
+begin
+  CRT_GotoXY(0, 0);
+  CRT_WRITE('SCORE:'~);
+  CRT_GotoXY(8, 0);
+  CRT_WRITE (score);
+end;
 // CHARSET_ADDRESS rcdata 'Mind Field\MINDFIELD.FNT'
 
 {***************************************************************************************}
@@ -241,8 +254,23 @@ end;
 
 
 begin
-		ShowTitleScreen;
 
+    repeat
+		ShowTitleScreen;
+        
+// Game Initialization here
+        score := 0;
+        lives := 0;
+        CRT_INIT (screen_adr,40,23);
+        CRT_CLEAR;  
+        DLISTW := word(@display_list_game); 	 
+        SDLSTW := word(@display_list_game); 
+        SAVMSC := word(screen_adr); 
+        SETCHARSET(HI(CHARSET_ADDRESS));
+        CHBAS := HI(CHARSET_ADDRESS);
+        
+        repeat until CRT_KeyPressed;
+	
 asm {
 DISPLIST 	          = $0400
 SCRTXT              = $0440
@@ -250,9 +278,7 @@ SCRTXT              = $0440
        
 };
 
-
-
-
+    until false;
 end.
  
  

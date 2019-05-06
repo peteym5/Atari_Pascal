@@ -9,7 +9,7 @@ setlocal
 
 set PATH=%PATH%;e:\"Mad Pascal";e:\"Mad Pascal"\lib;e:\"Mad Pascal"\blibs;e:\"Mad Pascal"\base
 
-mp "Mind Field.pas" -code:$8000 -data:$A000 -stack:$2C00 -zpage:$00A0
+mp "Mind Field.pas" -code:$8000 -data:$A000 -stack:$0040 -zpage:$00A0
 
 REM -code:$8000 -data:$2000 -stack:$2C00 -page:$A0
 
