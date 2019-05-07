@@ -17,26 +17,42 @@ mindfield_pascal
 	+Folder
 		..\..\Mads Projects\cc65\Mind Field C\Mind Field.c
 [Open project files]
-0=ASSETS_CHARSETS.RS
-1=Mind Field.pas
-2=Mind Field.a65
-3=..\lib\sysutils.pas
-4=__MindField.txt
+0=Mind Field.pas
+1=..\lib\sysutils.pas
+2=..\lib\atari.pas
+3=..\base\atari.hea
+4=..\base\cpu6502.asm
+5=..\base\cpu6502_integer.asm
+6=..\base\res6502.asm
+7=F:\Mads_Atari\Plex-ex\Multiplex_Mono_8W01.asm
+8=F:\Mad Pascal\Mind Field\Mind Field.pas
 [Selected Project Files]
 Main=
-Selected=__MindField.txt
-[ASSETS_CHARSETS.RS]
+Selected=F:\Mad Pascal\Mind Field\Mind Field.pas
+[Mind Field.pas]
+TopLine=93
+Caret=9,93
+[..\lib\sysutils.pas]
 TopLine=1
 Caret=1,1
-[Mind Field.pas]
-TopLine=152
-Caret=14,167
-[Mind Field.a65]
-TopLine=1013
-Caret=14,1038
-[..\lib\sysutils.pas]
-TopLine=374
-Caret=18,385
-[__MindField.txt]
-TopLine=7808
-Caret=16,7832
+[..\lib\atari.pas]
+TopLine=1
+Caret=1,1
+[..\base\atari.hea]
+TopLine=1
+Caret=1,1
+[..\base\cpu6502.asm]
+TopLine=201
+Caret=5,225
+[..\base\cpu6502_integer.asm]
+TopLine=1
+Caret=1,1
+[..\base\res6502.asm]
+TopLine=50
+Caret=1,50
+[F:\Mads_Atari\Plex-ex\Multiplex_Mono_8W01.asm]
+TopLine=342
+Caret=2,371
+[F:\Mad Pascal\Mind Field\Mind Field.pas]
+TopLine=163
+Caret=1,1

@@ -19,7 +19,8 @@ uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries indepen
 const
   {$R 'resources.rc'}
      
-	screen_adr 						= 16384;
+	SCREEN_ADDR						= 4096;
+	GAME_SCREEN						= SCREEN_ADDR + 40;
   PMBANK                = $1000;
   VARBANK               = $1800;
 	CHARSET_ADDRESS       = $A400;
@@ -27,40 +28,40 @@ const
 
   display_list_title: array [0..50] of byte = (
   $70,$70,$44,
-  lo(screen_adr),
-  hi(screen_adr),
+  lo(SCREEN_ADDR),
+  hi(SCREEN_ADDR),
   $04,$04,$04,$04,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
   lo(word(@display_list_title)), 
   hi(word(@display_list_title))
   );
   
   display_list_game: array [0..34] of byte = (
-  $70,$50,$43,
-  lo(screen_adr),
-  hi(screen_adr),
-  $03,$03,$10,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$41,
+  $70,$70,$44,
+  lo(SCREEN_ADDR),
+  hi(SCREEN_ADDR),
+  $10,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$41,
   lo(word(@display_list_game)), 
   hi(word(@display_list_game))
   );
   
 var
   PRIOR								    : byte absolute $D01B;
-  TMP0								    : byte absolute $C0;
-  TMP1								    : byte absolute $C1;
-  TMP2								    : byte absolute $C2;
-  TMP3								    : byte absolute $C3;
-  TMP4								    : byte absolute $C4;
-  TMP5								    : byte absolute $C5;
-  TMP6								    : byte absolute $C6;
-  TMP7								    : byte absolute $C7;
-  TMP8								    : byte absolute $C8;
-  TMP9								    : byte absolute $C9;
-  NDX0								    : byte absolute $CA;
-  NDX1								    : byte absolute $CB;
-  NDX2								    : byte absolute $CC;
-  NDX3								    : byte absolute $CD;
-  HOLDX								    : byte absolute $CE;
-  HOLDY								    : byte absolute $CF;
+  TMP0								    : byte absolute $E0;
+  TMP1								    : byte absolute $E1;
+  TMP2								    : byte absolute $E2;
+  TMP3								    : byte absolute $E3;
+  TMP4								    : byte absolute $E4;
+  TMP5								    : byte absolute $E5;
+  TMP6								    : byte absolute $E6;
+  TMP7								    : byte absolute $E7;
+  TMP8								    : byte absolute $E8;
+  TMP9								    : byte absolute $E9;
+  NDX0								    : byte absolute $EA;
+  NDX1								    : byte absolute $EB;
+  NDX2								    : byte absolute $EC;
+  NDX3								    : byte absolute $ED;
+  HOLDX								    : byte absolute $EE;
+  HOLDY								    : byte absolute $EF;
     
   SPRITENUM	              : byte absolute PMBANK+$0180;
   SETSP0COLOR             : byte absolute PMBANK+$0190;
@@ -91,11 +92,19 @@ var
   PMBNK1	                : byte absolute PMBANK+$0500;
   PMBNK2	                : byte absolute PMBANK+$0600;
   PMBNK3	                : byte absolute PMBANK+$0700;
-
-  screen :word = $B000;	
-  i : Byte;
+	
+	a : Byte;
+  b : Byte;  
+	c : Byte;
+  d : Byte;  
+	e : Byte;
+  f : Byte;  
+	g : Byte;
+  h : Byte;  
+	i : Byte;
   j : Byte;
   k : Byte;
+  l : Byte;
   
 	titlephase: Byte = 0;
   score: word = 4250;
@@ -136,11 +145,11 @@ asm {
     STA NDX3
     };		
 			 
-  CRT_INIT (screen_adr,40,23);
+  CRT_INIT (SCREEN_ADDR,40,25);
   CRT_CLEAR;  
   DLISTW := word(@display_list_title); 	 
   SDLSTW := word(@display_list_title); 
-  SAVMSC := word(screen_adr); 
+  SAVMSC := word(SCREEN_ADDR); 
   SETCHARSET(HI(CHARSET_ADDRESS));
   CHBAS := HI(CHARSET_ADDRESS);
   CRT_GotoXY(0, 0);  
@@ -160,11 +169,11 @@ asm {
  nmien :=64;
  
 
-	colpf0:=142;	
-	colpf1:=010;
-	colpf2:=186;
-	colpf3:=54;
-	colbk:=34;
+	color0:=142;	
+	color1:=010;
+	color2:=186;
+	color3:=54;
+	color4:=34;
   repeat     
       if score>hiscore[i] then 
         begin;
@@ -220,8 +229,8 @@ asm {
         // else CRT_Write(' HELP '~);
  until tmp5=255;
  
- //  repeat
- //  until CRT_StartPressed = false;
+     repeat
+     until CRT_StartPressed = false;
  
  
 asm {
@@ -236,15 +245,57 @@ end;
 
 
 procedure Initialize_Level;
-begin
+	begin
+	for i := 0 to 255 do
+	begin
+asm {
+	LDA RANDOM
+	CLC
+	ADC #<game_screen
+	STA NDX0
+	LDA RANDOM
+	AND #3
+	ADC #>game_screen
+	STA NDX1
+	LDA RANDOM
+	AND #3
+	ORA #68
+	LDY #0
+	STA (NDX0),Y
+};
+	end;
+
+
+	for i := 0 to 063 do
+	begin
+asm {
+	LDA RANDOM
+	CLC
+	ADC #<game_screen
+	STA NDX0
+	LDA RANDOM
+	AND #3
+	ADC #>game_screen
+	STA NDX1
+	LDA #193
+	LDY #0
+	STA (NDX0),Y
+};
+	end;
 end;
 
 procedure Display_Information_Line;
 begin
   CRT_GotoXY(0, 0);
   CRT_WRITE('SCORE:'~);
-  CRT_GotoXY(8, 0);
+  CRT_GotoXY(6, 0);
   CRT_WRITE (score);
+
+  CRT_GotoXY(14, 0);
+  CRT_WRITE('LIVES:'~);
+  CRT_GotoXY(20, 0);
+  CRT_WRITE (lives);
+
 end;
 // CHARSET_ADDRESS rcdata 'Mind Field\MINDFIELD.FNT'
 
@@ -260,14 +311,28 @@ begin
         
 // Game Initialization here
         score := 0;
-        lives := 0;
-        CRT_INIT (screen_adr,40,23);
+        lives := 5;
+        CRT_INIT (SCREEN_ADDR,40,26);
         CRT_CLEAR;  
+        Display_Information_Line;
         DLISTW := word(@display_list_game); 	 
         SDLSTW := word(@display_list_game); 
-        SAVMSC := word(screen_adr); 
+        SAVMSC := word(SCREEN_ADDR); 
         SETCHARSET(HI(CHARSET_ADDRESS));
         CHBAS := HI(CHARSET_ADDRESS);
+        Initialize_Level;
+				color0:=142;	
+				color1:=212;
+				color2:=070;
+				color3:=150;
+				color4:=34;
+
+//	for i := 0 to 255 do
+//	begin
+//		poke (game_screen + i,i);
+//	end;	
+		
+		     
         
         repeat until CRT_KeyPressed;
 	
