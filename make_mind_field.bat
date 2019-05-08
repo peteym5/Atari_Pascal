@@ -11,6 +11,6 @@ set PATH=%PATH%;e:\"Mad Pascal";e:\"Mad Pascal"\lib;e:\"Mad Pascal"\blibs;e:\"Ma
 
 mp "Mind Field.pas" -code:$8000 -data:$A000 -stack:$80 -zpage:$C0
 
-mads.exe e:\"Mad Pascal"\"Mind Field"\"Mind Field.a65" -i:..\base-rom -x -o:"Mind Field.xex" -l:__MindField.txt
+mads.exe e:\"Mad Pascal"\"Mind Field"\"Mind Field.a65" -i:..\base -x -o:"Mind Field.xex" -l:__MindField.txt
 
 pause
