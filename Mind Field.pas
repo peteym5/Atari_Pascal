@@ -13,12 +13,9 @@ uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries indepen
 // 	record	repeat	set				then			to
 // 	type		until		var				while			with
 
-
-
-    
 const
   {$R 'resources.rc'}
-     
+	     
 	SCREEN_ADDR						= 4096;
 	GAME_SCREEN						= SCREEN_ADDR + 40;
   PMBANK                = $1000;
@@ -26,11 +23,13 @@ const
 	CHARSET_ADDRESS       = $A400;
 	CHARSET_BASE					= $A4;
 
-  display_list_title: array [0..50] of byte = (
-  $70,$70,$44,
+  
+	
+	display_list_title: array [0..50] of byte = (
+  $70,$F0,$44,
   lo(SCREEN_ADDR),
   hi(SCREEN_ADDR),
-  $04,$04,$04,$04,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
+  $04,$04,$04,$04,$84,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
   lo(word(@display_list_title)), 
   hi(word(@display_list_title))
   );
@@ -44,6 +43,9 @@ const
   hi(word(@display_list_game))
   );
   
+
+  {$i 'Mind_Field_Interupts.inc'}
+
 var
   PRIOR								    : byte absolute $D01B;
   TMP0								    : byte absolute $E0;
@@ -212,11 +214,12 @@ asm {
    CRT_GotoXY(7, 23);
    CRT_WRITE('PRESS START TO BEGIN.'~);
    poke (hposp0,124);      
+			SetIntVec(iDLI, @title00dli); 
+ 			nmien :=192;
    
  repeat 
      
 		  
-		 
 		    // if CRT_OptionPressed then 
         // else CRT_Write(' OPTION '~);
 
@@ -228,19 +231,19 @@ asm {
         // if CRT_HelpPressed then CRT_Write(' HELP '~*)
         // else CRT_Write(' HELP '~);
  until tmp5=255;
- 
-     repeat
+// 		  vdslst:= title00dli;
+     nmien :=064;
+		 repeat
      until CRT_StartPressed = false;
  
  
 asm {
-Title_VBI
-      
 //    ORG 32768
 //    ICL "inflate_2017_ver4.asm"
 //    ORG 46080
 //    INS "roman10.fnt" 
 };
+
 end;
 
 
@@ -336,14 +339,6 @@ begin
         
         repeat until CRT_KeyPressed;
 	
-asm {
-DISPLIST 	          = $0400
-SCRTXT              = $0440
-;SCREEN              = $8000
-       
-};
-
     until false;
 end.
- 
- 
+
