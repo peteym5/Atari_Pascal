@@ -1,5 +1,18 @@
+// {$DEFINE Platform_AppliII}
+{$define Platform_Atari_Antic} // Either 400/800/XL/XE  or  5200
+{$define Platform_Atari_8_bit}     
+// {$DEFINE Platform_Commodore16}
+// {$DEFINE Platform_Vic20}           
+// {$DEFINE Platform_Atari_5200}
+// {$DEFINE Platform_Commodore64}
+
 program Mind_Field_Cartridge;
+{$ifdef Platform_Atari_8_bit}
 uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries independant from OS!
+{$endif}
+{$ifdef Platform_Atari_5200}
+uses atari5200, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries independant from OS!
+{$endif}
     
 // uses atari, crt, sysutils;
 
@@ -14,22 +27,39 @@ uses atari, b_system, b_crt;    // CRT using 8-bit OS!   blibs libraries indepen
 // 	type		until		var				while			with
 
 const
-  {$R 'resources.rc'}
-	     
-	SCREEN_ADDR						= 4096;
+	
+
+  
+  {$ifdef Platform_Atari_Antic}
+	{$R 'resources.rc'}	     
+	SCREEN_ADDR						= $0800;
 	GAME_SCREEN						= SCREEN_ADDR + 40;
   PMBANK                = $1000;
   VARBANK               = $1800;
-	CHARSET_ADDRESS       = $A400;
+	CHARSET_GAME          = $A400;
+	CHARSET_TITLE         = $A800;
+	TITLE_DATA						= $AC00;
 	CHARSET_BASE					= $A4;
-
+  {$endif}
   
-	
-	display_list_title: array [0..50] of byte = (
-  $70,$F0,$44,
+  {$ifdef Platform_Commodor64}
+	SCREEN_ADDR						= $0400; // 1024
+	GAME_SCREEN						= SCREEN_ADDR + 40;
+  VARBANK               = $1800;
+  COLORMAP              = $D800; //  55296-56295
+  {$endif}
+  
+  
+	//{$ifdef Platform_Atari_Antic}
+	{$ifdef Platform_Atari_8_bit or $ifdef Platform_Atari_5200}
+	display_list_title: array [0..52] of byte = (
+  $70,$C0,$44,
+  lo(TITLE_DATA),
+  hi(TITLE_DATA),
+  $04,$04,$04,$04,$04,$04,$84,$00,$44,
   lo(SCREEN_ADDR),
-  hi(SCREEN_ADDR),
-  $04,$04,$04,$04,$84,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
+  hi(SCREEN_ADDR),	
+	$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$00,$04,$41,
   lo(word(@display_list_title)), 
   hi(word(@display_list_title))
   );
@@ -42,7 +72,7 @@ const
   lo(word(@display_list_game)), 
   hi(word(@display_list_game))
   );
-  
+  {$ENDIF}
 
   {$i 'Mind_Field_Interupts.inc'}
 
@@ -146,18 +176,18 @@ asm {
     LDA #$A8
     STA NDX3
     };		
-			 
+	dmactl :=0;		 
+	nmien :=0;
   CRT_INIT (SCREEN_ADDR,40,25);
+	SetIntVec(iDLI, @title00dli);
+	SetIntVec(iVBL, @TitleVBI);
   CRT_CLEAR;  
   DLISTW := word(@display_list_title); 	 
   SDLSTW := word(@display_list_title); 
   SAVMSC := word(SCREEN_ADDR); 
-  SETCHARSET(HI(CHARSET_ADDRESS));
-  CHBAS := HI(CHARSET_ADDRESS);
-  CRT_GotoXY(0, 0);  
- 
-  CRT_WRITE('               MIND FIELD              '~*);
-  CRT_GotoXY(0, 6); 
+  SETCHARSET(HI(CHARSET_GAME));
+  CHBAS := HI(CHARSET_GAME);
+  CRT_GotoXY(0, 0); 
   CRT_WRITE('           ATARI 8-BIT VERSION          '~);
   CRT_WRITE(' PROGRAMMING             PETER J. MEYER '~);
   CRT_WRITE('              (YOUR NAME COULD BE HERE) '~);
@@ -167,15 +197,15 @@ asm {
   
   k := 6;
   i := 5;
- dmactl :=62;
- nmien :=64;
- 
-
-	color0:=142;	
-	color1:=010;
-	color2:=186;
+		 
+	color0:=$D8;	
+	color1:=$06;
+	color2:=$aa;
 	color3:=54;
 	color4:=34;
+ nmien :=192;
+ dmactl :=62;
+	
   repeat     
       if score>hiscore[i] then 
         begin;
@@ -192,30 +222,28 @@ asm {
       until i = k;
       hiscore [k] := score
     end;
-   CRT_GotoXY(10, 13); 
+   CRT_GotoXY(10, 06); 
    CRT_WRITE('SCORE : '~);
-   CRT_GOTOXY(18, 13);
+   CRT_GOTOXY(18, 06);
    CRT_WRITE (score);
-   CRT_GotoXY (8,15);
+   CRT_GotoXY (8,07);
    CRT_WRITE ('TODAYS HIGH SCORES.'~);
    for i := 1 to 5 do
     begin;
       if k = i then
         begin 
-          CRT_GOTOXY(12,16+i);
+          CRT_GOTOXY(12,08+i);
           CRT_WRITE('*'~);
         end;
-      CRT_GOTOXY(14, 16+i);  
+      CRT_GOTOXY(14, 08+i);  
       CRT_WRITE (i);
       CRT_WRITE (' :'~);
-      CRT_GotoXY(18, 16+i);      
+      CRT_GotoXY(18, 08+i);      
       CRT_WRITE(hiscore[i]);
      end;  
-   CRT_GotoXY(7, 23);
+   CRT_GotoXY(7, 15);
    CRT_WRITE('PRESS START TO BEGIN.'~);
    poke (hposp0,124);      
-			SetIntVec(iDLI, @title00dli); 
- 			nmien :=192;
    
  repeat 
      
@@ -321,8 +349,8 @@ begin
         DLISTW := word(@display_list_game); 	 
         SDLSTW := word(@display_list_game); 
         SAVMSC := word(SCREEN_ADDR); 
-        SETCHARSET(HI(CHARSET_ADDRESS));
-        CHBAS := HI(CHARSET_ADDRESS);
+        SETCHARSET(HI(CHARSET_GAME));
+        CHBAS := HI(CHARSET_GAME);
         Initialize_Level;
 				color0:=142;	
 				color1:=212;
@@ -335,8 +363,6 @@ begin
 //		poke (game_screen + i,i);
 //	end;	
 		
-		     
-        
         repeat until CRT_KeyPressed;
 	
     until false;

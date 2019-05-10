@@ -1,0 +1,45 @@
+procedure Title_VBI;assembler;interrupt;
+	asm {};
+	
+end;
+ 
+procedure Game_VBI;assembler;interrupt;
+  asm {};
+end;
+
+procedure Pause_VBI;assembler;interrupt;
+  asm {};
+end;
+
+procedure title00dli;assembler;interrupt;
+	asm {};
+end;
+
+procedure title01dli;assembler;interrupt;
+  asm {};
+end;
+
+procedure title02dli;assembler;interrupt;
+	asm {};
+end;
+
+procedure title03dli;assembler;interrupt;
+   asm {};
+end;
+
+
+procedure game00dli;assembler;interrupt;
+	asm {};
+end;
+
+procedure game01dli;assembler;interrupt;
+ 	asm {};
+end;
+
+procedure game02dli;assembler;interrupt;
+  asm {};
+end;
+
+procedure game03dli;assembler;interrupt;
+	asm {};
+end;

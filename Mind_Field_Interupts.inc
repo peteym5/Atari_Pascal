@@ -1,5 +1,11 @@
 procedure TitleVBI;assembler;interrupt;
-	asm {};	
+	asm {
+		lda #<title00dli
+		sta vdslst+0
+		lda #>title00dli
+		sta vdslst+1
+		jmp XITVBV
+	};	
 end;
  
 procedure GameVBI;assembler;interrupt;
@@ -13,9 +19,15 @@ end;
 procedure title00dli;assembler;interrupt;
 	asm {
 	pha	
-	lda #$00
+	lda #$D8
 	sta wsync
-	sta colbak
+	sta colpf0
+	lda #$06
+	sta colpf1
+	lda #$AA
+	sta colpf2
+	lda #>CHARSET_TITLE
+	sta chbase
 	lda #<title01dli
 	sta vdslst+0
 	lda #>title01dli
@@ -27,9 +39,15 @@ end;
 procedure title01dli;assembler;interrupt;
 	asm {
 	pha	
-	lda #$22
+	lda #142
 	sta wsync
-	sta colbak
+	sta colpf0
+	lda #10
+	sta colpf1
+	lda #186
+	sta colpf2
+	lda #>CHARSET_GAME
+ 	sta chbase
 	lda #<title00dli
 	sta vdslst+0
 	lda #>title00dli
