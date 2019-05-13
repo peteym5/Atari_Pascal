@@ -4,12 +4,35 @@ procedure TitleVBI;assembler;interrupt;
 		sta vdslst+0
 		lda #>title00dli
 		sta vdslst+1
+		lda #$22
+		sta colbak
+		lda #$36
+		sta colpf3				
+		inc rtclok+2
 		jmp XITVBV
 	};	
 end;
  
 procedure GameVBI;assembler;interrupt;
-  asm {};
+	
+	asm {
+		lda #<title00dli
+		sta vdslst+0
+		lda #>title00dli
+		sta vdslst+1
+		lda #$22
+		sta colbak
+		lda #$36
+		sta colpf3		
+inc_rt_clock
+		inc rtclok+2
+		bne no_inc_other_clock
+		inc rtclok+1
+		bne no_inc_other_clock
+		inc rtclok
+no_inc_other_clock				
+		jmp XITVBV
+	};	
 end;
 
 procedure PauseVBI;assembler;interrupt;
