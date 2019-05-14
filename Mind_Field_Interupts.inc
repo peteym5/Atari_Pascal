@@ -22,7 +22,7 @@ procedure GameVBI;assembler;interrupt;
 		sta vdslst+1
 		lda #$22
 		sta colbak
-		lda #$36
+		lda mind_color
 		sta colpf3		
 inc_rt_clock
 		inc rtclok+2

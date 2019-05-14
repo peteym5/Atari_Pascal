@@ -14,7 +14,6 @@ uses atari, b_system, b_crt, b_pmg, b_set_interupts;    // CRT using 8-bit OS!  
 uses atari5200, b_system, b_crt, b_pmg, b_set_interupts;    // CRT using 8-bit OS!   blibs libraries independant from OS!
 {$endif}
     
-// uses atari, crt, sysutils;
 
 
 // Pascal Reserved Words
@@ -116,16 +115,16 @@ P002:ARRAY[0..13] OF BYTE = (
      %00011100,  // $1C  28
      %00001100,  // $0C  12
      %00011110,  // $1E  30
-     %00011110,  // $1E  30
-     %00011110,  // $1E  30
+     %00111110,  // $3E  62
+     %00111110,  // $3E  62
      %00011110,  // $1E  30
      %00011100,  // $1C  28
      %00011000,  // $18  24
-     %00111000,  // $38  56
-     %00111000,  // $38  56
-     %00101100,  // $2C  44
-     %00100100,  // $24  36
-     %00001100   // $0C  12
+     %00011000,  // $18  24
+     %00011000,  // $18  24
+     %00011100,  // $1C  28
+     %00011100,  // $1C  28
+     %00010100   // $14  20
 );
 P003:ARRAY[0..13] OF BYTE = (
      %00010000,  // $10  16
@@ -148,16 +147,16 @@ P004:ARRAY[0..13] OF BYTE = (
      %00011100,  // $1C  28
      %00011000,  // $18  24
      %00111100,  // $3C  60
-     %00111100,  // $3C  60
-     %00111100,  // $3C  60
+     %00111110,  // $3E  62
+     %00111110,  // $3E  62
      %00111100,  // $3C  60
      %00011100,  // $1C  28
      %00001100,  // $0C  12
-     %00001110,  // $0E  14
-     %00001110,  // $0E  14
-     %00011010,  // $1A  26
-     %00010010,  // $12  18
-     %00011000   // $18  24
+     %00001100,  // $0C  12
+     %00001100,  // $0C  12
+     %00011100,  // $1C  28
+     %00011100,  // $1C  28
+     %00010100   // $14  20
 );
 P005:ARRAY[0..13] OF BYTE = (
      %00010000,  // $10  16
@@ -181,15 +180,15 @@ P006:ARRAY[0..13] OF BYTE = (
      %00001100,  // $0C  12
      %00011100,  // $1C  28
      %00011110,  // $1E  30
-     %00011111,  // $1F  31
-     %01111110,  // $7E  126
-     %00011100,  // $1C  28
+     %00011101,  // $1D  29
+     %00111110,  // $3E  62
+     %00111100,  // $3C  60
      %00011000,  // $18  24
-     %00011100,  // $1C  28
-     %00010100,  // $14  20
-     %00010110,  // $16  22
-     %00010010,  // $12  18
-     %00010110   // $16  22
+     %00011000,  // $18  24
+     %00100100,  // $24  36
+     %00100010,  // $22  34
+     %01000001,  // $41  65
+     %01000001   // $41  65
 );
 P007:ARRAY[0..13] OF BYTE = (
      %00010000,  // $10  16
@@ -213,15 +212,15 @@ P008:ARRAY[0..13] OF BYTE = (
      %00011000,  // $18  24
      %00011100,  // $1C  28
      %00111100,  // $3C  60
-     %01111100,  // $7C  124
-     %00111111,  // $3F  63
-     %00011100,  // $1C  28
+     %01011100,  // $5C  92
+     %00111110,  // $3E  62
+     %00011110,  // $1E  30
      %00001100,  // $0C  12
-     %00011100,  // $1C  28
-     %00010100,  // $14  20
-     %00110100,  // $34  52
-     %00100100,  // $24  36
-     %00110100   // $34  52
+     %00001100,  // $0C  12
+     %00010010,  // $12  18
+     %00100010,  // $22  34
+     %01000001,  // $41  65
+     %01000001   // $41  65
 );
 P009:ARRAY[0..13] OF BYTE = (
      %11000011,  // $C3  195
@@ -400,6 +399,7 @@ P019:ARRAY[0..13] OF BYTE = (
      %00111100   // $3C  60
 );
 
+
 	
 	spriteframes: array[0..19] of pointer = (@P000, @P001, @P002, @P003, @P004, @P005, @P006,@P007, @P008, @P009,
 																	         @P010, @P011, @P012, @P013, @P014, @P015, @P016,@P017, @P018, @P019);
@@ -430,35 +430,10 @@ var
   HOLDX								    : byte absolute $EE;
   HOLDY								    : byte absolute $EF;
     
-  SPRITENUM	              : byte absolute PMBANK+$0180;
-  SETSP0COLOR             : byte absolute PMBANK+$0190;
-  SETSP1COLOR             : byte absolute PMBANK+$01A0;
-  SETSPWIDTH              : byte absolute PMBANK+$01B0;
-  SPRITENHOZ              : byte absolute PMBANK+$01C0;
-  SPRITENVRT              : byte absolute PMBANK+$01E0;
-  SPHOZNEXT               : byte absolute PMBANK+$01F0;
-  SCREEN_LINE_ADDR_LOW  	: byte absolute PMBANK+$0000;
-  SCREEN_LINE_ADDR_HIGH 	: byte absolute PMBANK+$0020;
-  
-  SPRHZ0		              : byte absolute PMBANK+$0200;
-  SPRHZ1		              : byte absolute PMBANK+$0210;
-  SPRHZ2		              : byte absolute PMBANK+$0220;
-  SPRHZ3		              : byte absolute PMBANK+$0230;
-  SPZONT                  : byte absolute PMBANK+$0240;
-  SPZONB                  : byte absolute PMBANK+$0250;
-
-  SPSRC0                  : byte absolute PMBANK+$0260; 
-  SPSRC1                  : byte absolute PMBANK+$0278;
-  SPSRC2                  : byte absolute PMBANK+$0290;
-  SPSRC3                  : byte absolute PMBANK+$02A8;
-  SPSRC4                  : byte absolute PMBANK+$02C0;
-  SPRITEUSE               : byte absolute PMBANK+$02D8;
-
-	
 	a : Byte;
   b : Byte;  
-	c : Byte;
-  d : Byte;  
+	c : Word;
+  d : Word;  
 	e : Byte;
   f : Byte;  
 	g : Byte;
@@ -474,6 +449,15 @@ var
   stick_read: byte; 
   prior_rt_clock: byte;
   
+  menu_selection: byte;
+  find_option: byte;
+  bombs_on_option: byte;
+  walls_on_option: byte;
+  shooters_option: byte;
+  mind_color: byte;
+	show_countdown: byte;
+	minds_found: byte;
+	minds_under: byte;
 	titlephase: Byte = 0;
   score: word = 4250;
   lives : Byte;
@@ -561,25 +545,6 @@ asm {
       until i = k;
       hiscore [k] := score
     end;
-   CRT_GotoXY(10, 06); 
-   CRT_WRITE('SCORE : '~);
-   CRT_GOTOXY(18, 06);
-   CRT_WRITE (score);
-   CRT_GotoXY (8,07);
-   CRT_WRITE ('TODAYS HIGH SCORES.'~);
-   for i := 1 to 5 do
-    begin;
-      if k = i then
-        begin 
-          CRT_GOTOXY(12,08+i);
-          CRT_WRITE('*'~);
-        end;
-      CRT_GOTOXY(14, 08+i);  
-      CRT_WRITE (i);
-      CRT_WRITE (' :'~);
-      CRT_GotoXY(18, 08+i);      
-      CRT_WRITE(hiscore[i]);
-     end;  
    CRT_GotoXY(7, 15);
    CRT_WRITE('PRESS START TO BEGIN.'~);
    poke (hposp0,124);      
@@ -614,9 +579,43 @@ asm {
 end;
 
 
+procedure	Show_High_Scores;
+   begin 	
+	 CRT_GotoXY(10, 06); 
+   CRT_WRITE('SCORE : '~);
+   CRT_GOTOXY(18, 06);
+   CRT_WRITE (score);
+   CRT_GotoXY (8,07);
+   CRT_WRITE ('TODAYS HIGH SCORES.'~);
+   for i := 1 to 5 do
+    begin;
+      if k = i then
+        begin 
+          CRT_GOTOXY(12,08+i);
+          CRT_WRITE('*'~);
+        end;
+      CRT_GOTOXY(14, 08+i);  
+      CRT_WRITE (i);
+      CRT_WRITE (' :'~);
+      CRT_GotoXY(18, 08+i);      
+      CRT_WRITE(hiscore[i]);
+     end;  
+	end;
+
+procedure	Show_Options_Screen;
+	begin
+	end;
+
+procedure	Show_Story_Screen;
+	begin
+	end;
+
+
 procedure Initialize_Level;
 	begin
+	mind_color:=70;
 	for i := 0 to 255 do
+	
 	begin
 asm {
 	LDA RANDOM
@@ -639,20 +638,38 @@ asm {
 	for i := 0 to 063 do
 	begin
 asm {
-	LDA RANDOM
-	CLC
-	ADC #<game_screen
-	STA NDX0
-	LDA RANDOM
-	AND #3
-	ADC #>game_screen
-	STA NDX1
-	LDA #193
-	LDY #0
-	STA (NDX0),Y
+			LDA RANDOM
+			CLC
+			ADC #<game_screen
+			STA NDX0
+			LDA RANDOM
+			AND #3
+			ADC #>game_screen
+			STA NDX1
+			LDA #193
+			LDY #0
+			STA (NDX0),Y
 };
+	end;	
+	begin
+				character_px :=124;
+				character_py :=208;
+				a := (character_px - 48) DIV 4;
+				b := (character_py - 24) DIV 8;
+				for j := b - 2 to b + 3 do
+					for i := a - 2 to a + 3 do
+						begin
+								c := game_screen + i + 40 * j;
+								e := peek(c);
+								if e=193 then poke (c,0);
+						end;
+					
+						
+				
 	end;
-end;
+	end;
+	
+
 
 procedure Display_Information_Line;
 begin
@@ -692,8 +709,7 @@ begin
         CHBAS := HI(CHARSET_GAME);
         Initialize_Level;
         color0:=142;	
-        color1:=212;
-        color2:=070;
+        color1:=212;        
         color3:=150;
         color4:=34;
 				colpm0:=202;
@@ -708,9 +724,9 @@ begin
         PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
         NMIEN := 192;
 
+        show_countdown:=180;
+				mind_color:=$3F;	
 
-				character_px :=124;
-				character_py :=120;
 				f :=0; 				
 //	for i := 0 to 255 do
 //	begin
@@ -718,36 +734,73 @@ begin
 //	end;	
 				prior_rt_clock := RT_CHECK;
         repeat 				
+						if (minds_found > 0) and (show_countdown = 0) then
+							begin
+										minds_found :=0;
+										a := (character_px - 48) DIV 4;
+										b := (character_py - 24) DIV 8;
+										for j := b - 2 to b + 3 do
+											for i := a - 2 to a + 3 do
+												begin
+														c := game_screen + i + 40 * j;
+														e := peek(c);
+														if e=65 then poke (c,193);												
+												end;			            					            										
+							end;							
 						if prior_rt_clock <> RT_CHECK then begin
+				        minds_found :=0;
 							  prior_rt_clock := RT_CHECK;
 								fillbyte(pointer(PMBNK0+prior_py),14,0);										
 								move(spriteframes[f],pointer(PMBNK0+character_py),14);
 								hposp0:=character_px;
 								prior_py := character_py;									
-			          stick_read := (porta and 15);
-								asm {
-									lda RT_CHECK
-									AND #4
-									STA G
-		            };		
-			          f:=0;  
-			          if (stick_read and 1=0) then begin
-			          	character_py := character_py - 1;
-			          	f:=1+G;
-			          end;
-			          if (stick_read and 2=0) then begin
-			          	character_py := character_py + 1;
-			          	f:=3+G;
-								end;
-			          if (stick_read and 4=0) then begin
-									character_px := character_px - 1;
-									f:=2+G;
-			          end;
-			          if (stick_read and 8=0) then begin
-			          	character_px := character_px + 1;
-			          	f:=4+G;
-			          end;
-						end;					          
+			  				if show_countdown >0 then
+			  					show_countdown := show_countdown - 1			  					
+			  				else if mind_color > $32 then begin; 
+					  					mind_color := mind_color - 1;			  						
+					  					if mind_color = $32 then mind_color := $22					  					
+							  end;												
+							 if (mind_color = $22) and (show_countdown = 0) then
+												begin			  					
+										        stick_read := (porta and 15);
+														asm {
+															lda RT_CHECK
+															AND #4
+															STA G
+								            };		
+									          f:=0;  
+									          if (stick_read and 1=0) then begin
+									          	character_py := character_py - 1;
+									          	f:=1+G;
+									          end;
+									          if (stick_read and 2=0) then begin
+									          	character_py := character_py + 1;
+									          	f:=3+G;
+														end;
+									          if (stick_read and 4=0) then begin
+															character_px := character_px - 1;
+															f:=2+G;
+									          end;
+									          if (stick_read and 8=0) then begin
+									          	character_px := character_px + 1;
+									          	f:=4+G;
+									          end;
+			            			end;															            						            			
+												a := (character_px - 48) DIV 4;
+												b := (character_py - 24) DIV 8;
+												for j := b - 2 to b + 3 do
+													for i := a - 2 to a + 3 do
+														begin
+																c := game_screen + i + 40 * j;
+																e := peek(c);
+																if e=193 then
+																	begin
+																 	if (j=b) or (i=a) or (i=a+1) then	minds_under :=1;															 	
+																	 	poke (c,65);
+																	 	minds_found:=minds_found+1;
+																 end;
+														end;			            					            			
+								end;					          
 				until CRT_KeyPressed;
 	
     until false;

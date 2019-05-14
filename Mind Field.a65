@@ -123,6 +123,48 @@ START
 
 .local	SYSTEM						; UNIT
 
+.local	PEEK						; FUNCTION | ASSEMBLER | REGISTER
+
+; -----------------------------------------------------------
+
+; Generate Assignment for WORD / SMALLINT / SHORTREAL / POINTER
+; as Pointer
+	mva :STACKORIGIN,x A
+	mva :STACKORIGIN+STACKWIDTH,x A+1
+	dex						; sub bx, 1
+
+
+; ---------------------  ASM Block 004  ---------------------
+
+	ldy #0
+	mva (edx),y Result
+
+
+@exit
+
+; -----------------------------------------------------------
+
+; Push BYTE / CHAR / SHORTINT / BOOLEAN
+; as Pointer
+
+	inx						; add bx, 1
+	mva RESULT :STACKORIGIN,x
+
+	.ifdef @new
+	@FreeMem #@VarData #@VarDataSize
+	eif
+
+; -----------------------------------------------------------
+
+A	= edx
+RESULT	= DATAORIGIN+$000A
+
+@VarData	= RESULT
+@VarDataSize	= 1
+
+	rts						; ret
+.endl
+
 .local	POKE						; PROCEDURE | ASSEMBLER | REGISTER
 
 ; -----------------------------------------------------------
@@ -159,7 +201,7 @@ VALUE	= ecx
 	rts						; ret
 .endl
 
-.local	FILLCHAR_014C					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
+.local	FILLCHAR_0156					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
 
 ; -----------------------------------------------------------
 
@@ -203,7 +245,7 @@ VALUE	= eax
 	rts						; ret
 .endl
 
-.local	FILLBYTE_015F					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
+.local	FILLBYTE_0169					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
 
 ; -----------------------------------------------------------
 
@@ -247,7 +289,7 @@ VALUE	= eax
 	rts						; ret
 .endl
 
-.local	MOVE_0172					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
+.local	MOVE_017C					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
 
 ; -----------------------------------------------------------
 
@@ -292,7 +334,7 @@ COUNT	= eax
 	rts						; ret
 .endl
 
-.local	MOVE_0185					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
+.local	MOVE_018F					; PROCEDURE | ASSEMBLER | OVERLOAD | REGISTER
 
 ; -----------------------------------------------------------
 
@@ -553,12 +595,12 @@ NMIST	= $D40F
 	mva :STACKORIGIN,x MSB
 	dex						; sub bx, 1
 
-	ift l_01AB-*>3
-	jmp l_01AB
+	ift l_01B5-*>3
+	jmp l_01B5
 	eif
 
 ; IfThenEpilog
-l_01AB
+l_01B5
 
 ; optimize OK (B_SYSTEM), line = 218
 
@@ -566,7 +608,7 @@ l_01AB
 
 ; -----------------------------------------------------------
 
-MSB	= DATAORIGIN+$000B
+MSB	= DATAORIGIN+$000C
 
 @VarData	= MSB
 @VarDataSize	= 1
@@ -581,7 +623,7 @@ MSB	= DATAORIGIN+$000B
 
 ; -----------------------------------------------------------
 
-__NMIEN	= DATAORIGIN+$000A
+__NMIEN	= DATAORIGIN+$000B
 PORTB_SELFTEST_OFF	= $0080
 PORTB_BASIC_OFF	= $0002
 PORTB_SYSTEM_ON	= $0001
@@ -635,8 +677,8 @@ PORTB_SYSTEM_ON	= $0001
 
 ; -----------------------------------------------------------
 
-A	= DATAORIGIN+$000C
-RESULT	= DATAORIGIN+$0010
+A	= DATAORIGIN+$000D
+RESULT	= DATAORIGIN+$0011
 
 @VarData	= A
 @VarDataSize	= 6
@@ -660,7 +702,7 @@ FAANYFILE	= $003F
 
 .local	B_CRT						; UNIT
 
-.local	ATASCII2ANTIC_01CC				; FUNCTION | OVERLOAD
+.local	ATASCII2ANTIC_01D6				; FUNCTION | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -669,12 +711,12 @@ FAANYFILE	= $003F
 	mva :STACKORIGIN,x C
 	dex						; sub bx, 1
 
-	ift l_01D5-*>3
-	jmp l_01D5
+	ift l_01DF-*>3
+	jmp l_01DF
 	eif
 
 ; IfThenEpilog
-l_01D5
+l_01DF
 
 ; ---------------------  ASM Block 064  ---------------------
 
@@ -708,8 +750,8 @@ l_01D5
 
 ; -----------------------------------------------------------
 
-C	= DATAORIGIN+$001B
-RESULT	= DATAORIGIN+$001C
+C	= DATAORIGIN+$001C
+RESULT	= DATAORIGIN+$001D
 
 @VarData	= C
 @VarDataSize	= 2
@@ -717,7 +759,7 @@ RESULT	= DATAORIGIN+$001C
 	rts						; ret
 .endl
 
-.local	ATASCII2ANTIC_01D9				; FUNCTION | OVERLOAD
+.local	ATASCII2ANTIC_01E3				; FUNCTION | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -729,12 +771,12 @@ RESULT	= DATAORIGIN+$001C
 	@move S #adr.S #256
 	mwa #adr.S S
 
-	ift l_01E2-*>3
-	jmp l_01E2
+	ift l_01EC-*>3
+	jmp l_01EC
 	eif
 
 ; IfThenEpilog
-l_01E2
+l_01EC
 
 ; optimize OK (B_CRT), line = 468
 
@@ -749,44 +791,44 @@ l_01E2
 ; optimize OK (B_CRT), line = 469
 
 	lda adr.S+$00
-	sta @FORTMP_502
+	sta @FORTMP_512
 ; To
-l_01FC
+l_0206
 
 ; ForToDoCondition
 
 ; optimize OK (B_CRT), line = 469
 
 	lda I
-	cmp @FORTMP_502
+	cmp @FORTMP_512
 	bcc *+7
 	beq *+5
 
 ; ForToDoProlog
-	jmp l_020A
+	jmp l_0214
 
-; optimize FAIL ('ATASCII2ANTIC_01CC', B_CRT), line = 470
+; optimize FAIL ('ATASCII2ANTIC_01D6', B_CRT), line = 470
 	inx
 	mva I :STACKORIGIN,x
 	inx
 	ldy I 
 	mva adr.S,y :STACKORIGIN,x
-	jsr ATASCII2ANTIC_01CC
+	jsr ATASCII2ANTIC_01D6
 	ldy :STACKORIGIN-1,x
 	mva :STACKORIGIN,x adr.RESULT,y
 	dex
 	dex
 
 ; ForToDoEpilog
-c_01FC
+c_0206
 	inc I						; inc ptr byte [CounterAddress]
 
 	seq
 
 ; WhileDoEpilog
-	jmp l_01FC
-l_020A
-b_01FC
+	jmp l_0206
+l_0214
+b_0206
 
 @exit
 
@@ -805,12 +847,12 @@ b_01FC
 
 ; -----------------------------------------------------------
 
-adr.S	= DATAORIGIN+$001D
+adr.S	= DATAORIGIN+$001E
 .var S	= adr.S .word
-adr.RESULT	= DATAORIGIN+$011D
+adr.RESULT	= DATAORIGIN+$011E
 .var RESULT	= adr.RESULT .word
-I	= DATAORIGIN+$021D
-@FORTMP_502	= DATAORIGIN+$021E
+I	= DATAORIGIN+$021E
+@FORTMP_512	= DATAORIGIN+$021F
 
 @VarData	= S
 @VarDataSize	= 514
@@ -818,7 +860,7 @@ I	= DATAORIGIN+$021D
 	rts						; ret
 .endl
 
-.local	CRT_INIT_0220					; PROCEDURE | OVERLOAD
+.local	CRT_INIT_022A					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -842,12 +884,12 @@ I	= DATAORIGIN+$021D
 	mva :STACKORIGIN+STACKWIDTH,x VRAM_ADDRESS+1
 	dex						; sub bx, 1
 
-	ift l_0235-*>3
-	jmp l_0235
+	ift l_023F-*>3
+	jmp l_023F
 	eif
 
 ; IfThenEpilog
-l_0235
+l_023F
 
 ; optimize OK (B_CRT), line = 483
 
@@ -889,9 +931,9 @@ l_0235
 
 ; -----------------------------------------------------------
 
-VRAM_ADDRESS	= DATAORIGIN+$021F
-WIDTH	= DATAORIGIN+$0221
-HEIGHT	= DATAORIGIN+$0222
+VRAM_ADDRESS	= DATAORIGIN+$0220
+WIDTH	= DATAORIGIN+$0222
+HEIGHT	= DATAORIGIN+$0223
 
 @VarData	= VRAM_ADDRESS
 @VarDataSize	= 4
@@ -904,14 +946,14 @@ HEIGHT	= DATAORIGIN+$0222
 	rts						; ret
 .endl
 
-.local	CRT_CLEAR_026E					; PROCEDURE | OVERLOAD
+.local	CRT_CLEAR_0278					; PROCEDURE | OVERLOAD
 
-	ift l_0271-*>3
-	jmp l_0271
+	ift l_027B-*>3
+	jmp l_027B
 	eif
 
 ; IfThenEpilog
-l_0271
+l_027B
 
 ; optimize OK (B_CRT), line = 504
 
@@ -955,12 +997,12 @@ l_0271
 	mva :STACKORIGIN,x X
 	dex						; sub bx, 1
 
-	ift l_028F-*>3
-	jmp l_028F
+	ift l_0299-*>3
+	jmp l_0299
 	eif
 
 ; IfThenEpilog
-l_028F
+l_0299
 
 ; optimize OK (B_CRT), line = 516
 
@@ -988,8 +1030,8 @@ l_028F
 
 ; -----------------------------------------------------------
 
-X	= DATAORIGIN+$0223
-Y	= DATAORIGIN+$0224
+X	= DATAORIGIN+$0224
+Y	= DATAORIGIN+$0225
 
 @VarData	= X
 @VarDataSize	= 2
@@ -1002,7 +1044,7 @@ Y	= DATAORIGIN+$0224
 	rts						; ret
 .endl
 
-.local	CRT_WRITE_02AA					; PROCEDURE | OVERLOAD
+.local	CRT_WRITE_02B4					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -1014,12 +1056,12 @@ Y	= DATAORIGIN+$0224
 	@move S #adr.S #256
 	mwa #adr.S S
 
-	ift l_02B3-*>3
-	jmp l_02B3
+	ift l_02BD-*>3
+	jmp l_02BD
 	eif
 
 ; IfThenEpilog
-l_02B3
+l_02BD
 
 ; optimize OK (B_CRT), line = 531
 
@@ -1050,7 +1092,7 @@ l_02B3
 
 ; -----------------------------------------------------------
 
-adr.S	= DATAORIGIN+$0225
+adr.S	= DATAORIGIN+$0226
 .var S	= adr.S .word
 
 @VarData	= S
@@ -1064,49 +1106,7 @@ adr.S	= DATAORIGIN+$0225
 	rts						; ret
 .endl
 
-.local	CRT_WRITE_02C0					; PROCEDURE | OVERLOAD
-
-; -----------------------------------------------------------
-
-; Generate Assignment for BYTE / CHAR / SHORTINT / BOOLEAN
-; as Pointer
-	mva :STACKORIGIN,x C
-	dex						; sub bx, 1
-
-	ift l_02C9-*>3
-	jmp l_02C9
-	eif
-
-; IfThenEpilog
-l_02C9
-
-; optimize OK (B_CRT), line = 537
-
-	lda CRT_CURSOR+1
-	sta :bp+1
-	ldy CRT_CURSOR
-	lda C
-	sta (:bp),y
-
-; optimize FAIL (0, B_CRT), line = 538
-	inw CRT_CURSOR
-
-; -----------------------------------------------------------
-
-C	= DATAORIGIN+$0325
-
-@VarData	= C
-@VarDataSize	= 1
-
-
-@exit
-	.ifdef @new
-	@FreeMem #@VarData #@VarDataSize
-	eif
-	rts						; ret
-.endl
-
-.local	CRT_WRITE_02D4					; PROCEDURE | OVERLOAD
+.local	CRT_WRITE_02CA					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -1115,20 +1115,20 @@ C	= DATAORIGIN+$0325
 	mva :STACKORIGIN,x NUM
 	dex						; sub bx, 1
 
-	ift l_02DD-*>3
-	jmp l_02DD
+	ift l_02D3-*>3
+	jmp l_02D3
 	eif
 
 ; IfThenEpilog
-l_02DD
+l_02D3
 
 ; optimize FAIL ('SYSUTILS.INTTOSTR', B_CRT), line = 543
 	inx
 	mva NUM :STACKORIGIN,x
 	jsr @expandToCARD.BYTE
 	jsr SYSUTILS.INTTOSTR
-	jsr ATASCII2ANTIC_01D9
-	jsr CRT_WRITE_02AA
+	jsr ATASCII2ANTIC_01E3
+	jsr CRT_WRITE_02B4
 
 ; -----------------------------------------------------------
 
@@ -1145,7 +1145,7 @@ NUM	= DATAORIGIN+$0326
 	rts						; ret
 .endl
 
-.local	CRT_WRITE_02E4					; PROCEDURE | OVERLOAD
+.local	CRT_WRITE_02DA					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -1155,12 +1155,12 @@ NUM	= DATAORIGIN+$0326
 	mva :STACKORIGIN+STACKWIDTH,x NUM+1
 	dex						; sub bx, 1
 
-	ift l_02ED-*>3
-	jmp l_02ED
+	ift l_02E3-*>3
+	jmp l_02E3
 	eif
 
 ; IfThenEpilog
-l_02ED
+l_02E3
 
 ; optimize FAIL ('SYSUTILS.INTTOSTR', B_CRT), line = 548
 	inx
@@ -1168,8 +1168,8 @@ l_02ED
 	mva NUM+1 :STACKORIGIN+STACKWIDTH,x
 	jsr @expandToCARD.WORD
 	jsr SYSUTILS.INTTOSTR
-	jsr ATASCII2ANTIC_01D9
-	jsr CRT_WRITE_02AA
+	jsr ATASCII2ANTIC_01E3
+	jsr CRT_WRITE_02B4
 
 ; -----------------------------------------------------------
 
@@ -1188,12 +1188,12 @@ NUM	= DATAORIGIN+$0327
 
 .local	CRT_KEYPRESSED					; FUNCTION
 
-	ift l_02F6-*>3
-	jmp l_02F6
+	ift l_02EC-*>3
+	jmp l_02EC
 	eif
 
 ; IfThenEpilog
-l_02F6
+l_02EC
 
 ; optimize OK (B_CRT), line = 592
 
@@ -1212,14 +1212,14 @@ l_02F6
 	eif
 	tya
 	bne *+5
-	jmp l_0313
+	jmp l_0309
 
 ; optimize OK (B_CRT), line = 593
 
 	mva #$01 RESULT
 
 ; IfThenEpilog
-l_0313
+l_0309
 
 @exit
 
@@ -1247,12 +1247,12 @@ RESULT	= DATAORIGIN+$0329
 
 .local	CRT_STARTPRESSED				; FUNCTION
 
-	ift l_032D-*>3
-	jmp l_032D
+	ift l_0323-*>3
+	jmp l_0323
 	eif
 
 ; IfThenEpilog
-l_032D
+l_0323
 
 ; optimize OK (B_CRT), line = 749
 
@@ -1306,12 +1306,12 @@ ICHAR_INVERSE	= $00C1
 ICHAR_CAPS	= $00C2
 adr.CRT_KEYCODE	= CODEORIGIN+$011E
 .var CRT_KEYCODE	= adr.CRT_KEYCODE .word
-CRT_VRAM	= DATAORIGIN+$0012
-CRT_SIZE	= DATAORIGIN+$0014
-CRT_SCREENWIDTH	= DATAORIGIN+$0016
-CRT_SCREENHEIGHT	= DATAORIGIN+$0017
-CRT_CURSOR	= DATAORIGIN+$0018
-CRT_LEFTMARGIN	= DATAORIGIN+$001A
+CRT_VRAM	= DATAORIGIN+$0013
+CRT_SIZE	= DATAORIGIN+$0015
+CRT_SCREENWIDTH	= DATAORIGIN+$0017
+CRT_SCREENHEIGHT	= DATAORIGIN+$0018
+CRT_CURSOR	= DATAORIGIN+$0019
+CRT_LEFTMARGIN	= DATAORIGIN+$001B
 KBCODE	= $D209
 CONSOL	= $D01F
 
@@ -1321,7 +1321,7 @@ CONSOL	= $D01F
 
 .local	B_PMG						; UNIT
 
-.local	PMG_INIT_0344					; PROCEDURE | OVERLOAD
+.local	PMG_INIT_033A					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -1344,12 +1344,12 @@ CONSOL	= $D01F
 	mva :STACKORIGIN,x BASE
 	dex						; sub bx, 1
 
-	ift l_0359-*>3
-	jmp l_0359
+	ift l_034F-*>3
+	jmp l_034F
 	eif
 
 ; IfThenEpilog
-l_0359
+l_034F
 
 ; optimize OK (B_PMG), line = 159
 
@@ -1394,7 +1394,7 @@ l_0359
 	eif
 	tya
 	bne *+5
-	jmp l_03B3
+	jmp l_03A9
 
 ; optimize OK (B_PMG), line = 166
 
@@ -1406,14 +1406,14 @@ l_0359
 	mva #$08 PMG_SIZE+1
 
 ; IfThenEpilog
-l_03B3
+l_03A9
 
 ; Restore conditional expression
 	lda IFTMP_32
 
 ; else condition
 	beq *+5						; je
-	jmp l_03CB
+	jmp l_03C1
 
 ; optimize OK (B_PMG), line = 169
 
@@ -1425,7 +1425,7 @@ l_03B3
 	mva #$04 PMG_SIZE+1
 
 ; IfThenEpilog
-l_03CB
+l_03C1
 
 ; -----------------------------------------------------------
 
@@ -1446,7 +1446,7 @@ IFTMP_32	= DATAORIGIN+$0334
 	rts						; ret
 .endl
 
-.local	PMG_INIT_03DA					; PROCEDURE | OVERLOAD
+.local	PMG_INIT_03D0					; PROCEDURE | OVERLOAD
 
 ; -----------------------------------------------------------
 
@@ -1462,21 +1462,21 @@ IFTMP_32	= DATAORIGIN+$0334
 	mva :STACKORIGIN,x BASE
 	dex						; sub bx, 1
 
-	ift l_03E9-*>3
-	jmp l_03E9
+	ift l_03DF-*>3
+	jmp l_03DF
 	eif
 
 ; IfThenEpilog
-l_03E9
+l_03DF
 
-; optimize FAIL ('PMG_INIT_0344', B_PMG), line = 177
+; optimize FAIL ('PMG_INIT_033A', B_PMG), line = 177
 	inx
 	mva BASE :STACKORIGIN,x
 	inx
 	mva SDMCTL :STACKORIGIN,x
 	inx
 	mva GRACTL :STACKORIGIN,x
-	jsr PMG_INIT_0344
+	jsr PMG_INIT_033A
 
 ; -----------------------------------------------------------
 
@@ -1652,7 +1652,7 @@ PORTB_SYSTEM_ON	= $0001
 		sta vdslst+1
 		lda #$22
 		sta colbak
-		lda #$36
+		lda mind_color
 		sta colpf3		
 inc_rt_clock
 		inc rtclok+2
@@ -1787,14 +1787,14 @@ phr
 
 .local	SHOWTITLESCREEN					; PROCEDURE
 
-	ift l_0409-*>3
-	jmp l_0409
+	ift l_03FF-*>3
+	jmp l_03FF
 	eif
 
 ; IfThenEpilog
-l_0409
+l_03FF
 
-; optimize OK (Mind Field.pas), line = 489
+; optimize OK (Mind Field.pas), line = 473
 
 	lda #$00
 	sta TOPMEM
@@ -1829,15 +1829,15 @@ l_0409
     STA NDX3
     
 
-; optimize OK (Mind Field.pas), line = 515
+; optimize OK (Mind Field.pas), line = 499
 
 	mva #$00 ATARI.DMACTL
 
-; optimize OK (Mind Field.pas), line = 516
+; optimize OK (Mind Field.pas), line = 500
 
 	sta ATARI.NMIEN
 
-; optimize FAIL ('B_CRT.CRT_INIT_0220', Mind Field.pas), line = 517
+; optimize FAIL ('B_CRT.CRT_INIT_022A', Mind Field.pas), line = 501
 	inx
 	mva #$00 :STACKORIGIN,x
 	mva #$08 :STACKORIGIN+STACKWIDTH,x
@@ -1845,138 +1845,138 @@ l_0409
 	mva #$28 :STACKORIGIN,x
 	inx
 	mva #$19 :STACKORIGIN,x
-	jsr B_CRT.CRT_INIT_0220
+	jsr B_CRT.CRT_INIT_022A
 
-; optimize OK (Mind Field.pas), line = 518
+; optimize OK (Mind Field.pas), line = 502
 
 	mva <TITLE00DLI VDSLST
 	mva >TITLE00DLI VDSLST+1
 
-; optimize FAIL ('B_SET_INTERUPTS.SETVBLI', Mind Field.pas), line = 520
+; optimize FAIL ('B_SET_INTERUPTS.SETVBLI', Mind Field.pas), line = 504
 	inx
 	mva <TITLEVBI :STACKORIGIN,x
 	mva >TITLEVBI :STACKORIGIN+STACKWIDTH,x
 	jsr B_SET_INTERUPTS.SETVBLI
 
-; optimize FAIL ('B_CRT.CRT_CLEAR_026E', Mind Field.pas), line = 521
-	jsr B_CRT.CRT_CLEAR_026E
+; optimize FAIL ('B_CRT.CRT_CLEAR_0278', Mind Field.pas), line = 505
+	jsr B_CRT.CRT_CLEAR_0278
 
-; optimize OK (Mind Field.pas), line = 522
+; optimize OK (Mind Field.pas), line = 506
 
 	mva #$1E ATARI.DLISTW
 	mva #$82 ATARI.DLISTW+1
 
-; optimize OK (Mind Field.pas), line = 523
+; optimize OK (Mind Field.pas), line = 507
 
 	mva #$1E ATARI.SDLSTW
 	mva #$82 ATARI.SDLSTW+1
 
-; optimize OK (Mind Field.pas), line = 524
+; optimize OK (Mind Field.pas), line = 508
 
 	mva #$00 ATARI.SAVMSC
 	mva #$08 ATARI.SAVMSC+1
 
-; optimize FAIL ('B_SYSTEM.SETCHARSET', Mind Field.pas), line = 525
+; optimize FAIL ('B_SYSTEM.SETCHARSET', Mind Field.pas), line = 509
 	inx
 	mva #$A4 :STACKORIGIN,x
 	jsr B_SYSTEM.SETCHARSET
 
-; optimize OK (Mind Field.pas), line = 526
+; optimize OK (Mind Field.pas), line = 510
 
 	mva #$A4 ATARI.CHBAS
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 527
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 511
 	inx
 	mva #$00 :STACKORIGIN,x
 	inx
 	sta :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 528
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 512
 	inx
 	mva #$02 :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 529
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 513
 	inx
 	mva #$2C :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 530
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 514
 	inx
 	mva #$56 :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 531
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 515
 	inx
 	mva #$80 :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 532
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 516
 	inx
 	mva #$AA :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize OK (Mind Field.pas), line = 533
+; optimize OK (Mind Field.pas), line = 517
 
 	mva #$00 TMP5
 
-; optimize OK (Mind Field.pas), line = 534
+; optimize OK (Mind Field.pas), line = 518
 
 	mva #$01 ATARI.GPRIOR
 
-; optimize OK (Mind Field.pas), line = 535
+; optimize OK (Mind Field.pas), line = 519
 
 	sta ATARI.PRIOR
 
-; optimize OK (Mind Field.pas), line = 536
+; optimize OK (Mind Field.pas), line = 520
 
 	mva #$06 K
 
-; optimize OK (Mind Field.pas), line = 537
+; optimize OK (Mind Field.pas), line = 521
 
 	mva #$05 I
 
-; optimize OK (Mind Field.pas), line = 539
+; optimize OK (Mind Field.pas), line = 523
 
 	mva #$D8 ATARI.COLOR0
 
-; optimize OK (Mind Field.pas), line = 540
+; optimize OK (Mind Field.pas), line = 524
 
 	mva #$06 ATARI.COLOR1
 
-; optimize OK (Mind Field.pas), line = 541
+; optimize OK (Mind Field.pas), line = 525
 
 	mva #$AA ATARI.COLOR2
 
-; optimize OK (Mind Field.pas), line = 542
+; optimize OK (Mind Field.pas), line = 526
 
 	mva #$36 ATARI.COLOR3
 
-; optimize OK (Mind Field.pas), line = 543
+; optimize OK (Mind Field.pas), line = 527
 
 	mva #$22 ATARI.COLOR4
 
-; optimize FAIL ('B_PMG.PMG_INIT_03DA', Mind Field.pas), line = 545
+; optimize FAIL ('B_PMG.PMG_INIT_03D0', Mind Field.pas), line = 529
 	inx
 	mva #$18 :STACKORIGIN,x
 	inx
 	mva #$3E :STACKORIGIN,x
-	jsr B_PMG.PMG_INIT_03DA
+	jsr B_PMG.PMG_INIT_03D0
 
-; optimize OK (Mind Field.pas), line = 546
+; optimize OK (Mind Field.pas), line = 530
 
 	mva #$C0 ATARI.NMIEN
 
 ; --- RepeatUntilProlog
-l_04A6
+l_049C
 
-; optimize OK (Mind Field.pas), line = 549
+; optimize OK (Mind Field.pas), line = 533
 
 	lda I
 	asl @
@@ -2001,20 +2001,20 @@ l_04A6
 	eif
 	tya
 	bne *+5
-	jmp l_04BB
+	jmp l_04B1
 
-; optimize OK (Mind Field.pas), line = 551
+; optimize OK (Mind Field.pas), line = 535
 
 	mva I K
 
 ; IfThenEpilog
-l_04BB
+l_04B1
 
-; optimize OK (Mind Field.pas), line = 553
+; optimize OK (Mind Field.pas), line = 537
 
 	dec I
 
-; optimize OK (Mind Field.pas), line = 554
+; optimize OK (Mind Field.pas), line = 538
 
 	ldy #1
 	lda I
@@ -2023,11 +2023,11 @@ l_04BB
 @
 	tya
 	bne *+5
-c_04A6
-	jmp l_04A6
-b_04A6
+c_049C
+	jmp l_049C
+b_049C
 
-; optimize OK (Mind Field.pas), line = 555
+; optimize OK (Mind Field.pas), line = 539
 
 	ldy #1
 	lda K
@@ -2040,16 +2040,16 @@ b_04A6
 	eif
 	tya
 	bne *+5
-	jmp l_04F3
+	jmp l_04E9
 
-; optimize OK (Mind Field.pas), line = 557
+; optimize OK (Mind Field.pas), line = 541
 
 	mva #$05 I
 
 ; --- RepeatUntilProlog
-l_04FC
+l_04F2
 
-; optimize OK (Mind Field.pas), line = 559
+; optimize OK (Mind Field.pas), line = 543
 
 	lda I
 	asl @
@@ -2068,11 +2068,11 @@ l_04FC
 	lda :STACKORIGIN+STACKWIDTH+10
 	sta adr.HISCORE+1,y
 
-; optimize OK (Mind Field.pas), line = 560
+; optimize OK (Mind Field.pas), line = 544
 
 	dec I
 
-; optimize OK (Mind Field.pas), line = 561
+; optimize OK (Mind Field.pas), line = 545
 
 	ldy #1
 	lda I
@@ -2082,11 +2082,11 @@ l_04FC
 @
 	tya
 	bne *+5
-c_04FC
-	jmp l_04FC
-b_04FC
+c_04F2
+	jmp l_04F2
+b_04F2
 
-; optimize OK (Mind Field.pas), line = 562
+; optimize OK (Mind Field.pas), line = 546
 
 	lda K
 	asl @
@@ -2097,171 +2097,22 @@ b_04FC
 	sta adr.HISCORE+1,y
 
 ; IfThenEpilog
-l_04F3
+l_04E9
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 564
-	inx
-	mva #$0A :STACKORIGIN,x
-	inx
-	mva #$06 :STACKORIGIN,x
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 565
-	inx
-	mva #$D4 :STACKORIGIN,x
-	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 566
-	inx
-	mva #$12 :STACKORIGIN,x
-	inx
-	mva #$06 :STACKORIGIN,x
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02E4', Mind Field.pas), line = 567
-	inx
-	mva SCORE :STACKORIGIN,x
-	mva SCORE+1 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02E4
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 568
-	inx
-	mva #$08 :STACKORIGIN,x
-	inx
-	mva #$07 :STACKORIGIN,x
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 569
-	inx
-	mva #$DE :STACKORIGIN,x
-	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
-; For
-
-; optimize OK (Mind Field.pas), line = 570
-
-	mva #$01 I
-
-; optimize OK (Mind Field.pas), line = 570
-
-; To
-l_0550
-
-; ForToDoCondition
-
-; optimize OK (Mind Field.pas), line = 570
-
-	lda I
-	cmp #$05
-	bcc *+7
-	beq *+5
-
-; ForToDoProlog
-	jmp l_055E
-
-; optimize OK (Mind Field.pas), line = 572
-
-	ldy #1
-	lda K
-	cmp I
-	beq @+
-	dey
-@
-	.ifdef IFTMP_35
-	sty IFTMP_35
-	eif
-	tya
-	bne *+5
-	jmp l_0572
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 574
-	inx
-	mva #$0C :STACKORIGIN,x
-	inx
-	mva #$08 :STACKORIGIN,x
-	inx
-	mva I :STACKORIGIN,x
-	jsr addAL_CL
-	dex
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02C0', Mind Field.pas), line = 575
-	inx
-	mva #$0A :STACKORIGIN,x
-	jsr B_CRT.CRT_WRITE_02C0
-
-; IfThenEpilog
-l_0572
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 577
-	inx
-	mva #$0E :STACKORIGIN,x
-	inx
-	mva #$08 :STACKORIGIN,x
-	inx
-	mva I :STACKORIGIN,x
-	jsr addAL_CL
-	dex
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02D4', Mind Field.pas), line = 578
-	inx
-	mva I :STACKORIGIN,x
-	jsr B_CRT.CRT_WRITE_02D4
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 579
-	inx
-	mva #$F3 :STACKORIGIN,x
-	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 580
-	inx
-	mva #$12 :STACKORIGIN,x
-	inx
-	mva #$08 :STACKORIGIN,x
-	inx
-	mva I :STACKORIGIN,x
-	jsr addAL_CL
-	dex
-	jsr B_CRT.CRT_GOTOXY
-
-; optimize FAIL ('B_CRT.CRT_WRITE_02E4', Mind Field.pas), line = 581
-	inx
-	mva I :STACKORIGIN,x
-	mva #$00 :STACKORIGIN+STACKWIDTH,x
-	m@index2 0
-	ldy :STACKORIGIN,x
-	mva adr.HISCORE,y :STACKORIGIN,x
-	mva adr.HISCORE+1,y :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02E4
-
-; ForToDoEpilog
-c_0550
-	inc I						; inc ptr byte [CounterAddress]
-
-	seq
-
-; WhileDoEpilog
-	jmp l_0550
-l_055E
-b_0550
-
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 583
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 548
 	inx
 	mva #$07 :STACKORIGIN,x
 	inx
 	mva #$0F :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 584
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 549
 	inx
-	mva #$F7 :STACKORIGIN,x
+	mva #$D4 :STACKORIGIN,x
 	mva #$80 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize OK (Mind Field.pas), line = 585
+; optimize OK (Mind Field.pas), line = 550
 
 	lda #$00
 	sta :bp+1
@@ -2270,27 +2121,27 @@ b_0550
 	sta (:bp),y
 
 ; --- RepeatUntilProlog
-l_05AE
+l_0532
 
-; optimize FAIL ('B_CRT.CRT_STARTPRESSED', Mind Field.pas), line = 596
+; optimize FAIL ('B_CRT.CRT_STARTPRESSED', Mind Field.pas), line = 561
 	jsr B_CRT.CRT_STARTPRESSED
-	.ifdef IFTMP_36
+	.ifdef IFTMP_35
 	lda :STACKORIGIN,x
-	sta IFTMP_36
+	sta IFTMP_35
 	eif
 	dex
 	lda :STACKORIGIN+1,x
 	bne *+5
-	jmp l_05B8
+	jmp l_053C
 
-; optimize OK (Mind Field.pas), line = 596
+; optimize OK (Mind Field.pas), line = 561
 
 	mva #$FF TMP5
 
 ; IfThenEpilog
-l_05B8
+l_053C
 
-; optimize OK (Mind Field.pas), line = 600
+; optimize OK (Mind Field.pas), line = 565
 
 	ldy #1
 	lda TMP5
@@ -2300,18 +2151,18 @@ l_05B8
 @
 	tya
 	bne *+5
-c_05AE
-	jmp l_05AE
-b_05AE
+c_0532
+	jmp l_0532
+b_0532
 
-; optimize OK (Mind Field.pas), line = 602
+; optimize OK (Mind Field.pas), line = 567
 
 	mva #$40 ATARI.NMIEN
 
 ; --- RepeatUntilProlog
-l_05D7
+l_055B
 
-; optimize FAIL ('B_CRT.CRT_STARTPRESSED', Mind Field.pas), line = 604
+; optimize FAIL ('B_CRT.CRT_STARTPRESSED', Mind Field.pas), line = 569
 	jsr B_CRT.CRT_STARTPRESSED
 	inx
 	mva #$00 :STACKORIGIN,x
@@ -2326,9 +2177,9 @@ l_05D7
 	dex
 	lda :STACKORIGIN+1,x
 	bne *+5
-c_05D7
-	jmp l_05D7
-b_05D7
+c_055B
+	jmp l_055B
+b_055B
 
 ; ---------------------  ASM Block 081  ---------------------
 
@@ -2339,10 +2190,6 @@ b_05D7
 //    INS "roman10.fnt" 
 
 
-; -----------------------------------------------------------
-
-@FORTMP_1354	= $0005
-
 @exit
 	.ifdef @new
 	@FreeMem #@VarData #@VarDataSize
@@ -2352,26 +2199,30 @@ b_05D7
 
 .local	INITIALIZE_LEVEL				; PROCEDURE
 
-	ift l_05E6-*>3
-	jmp l_05E6
+	ift l_056C-*>3
+	jmp l_056C
 	eif
 
 ; IfThenEpilog
-l_05E6
+l_056C
+
+; optimize OK (Mind Field.pas), line = 616
+
+	mva #$46 MIND_COLOR
 ; For
 
-; optimize OK (Mind Field.pas), line = 619
+; optimize OK (Mind Field.pas), line = 617
 
 	mva #$00 I
 
-; optimize OK (Mind Field.pas), line = 619
+; optimize OK (Mind Field.pas), line = 617
 
 ; To
-l_05F5
+l_0582
 
 ; ForToDoCondition
 
-; optimize OK (Mind Field.pas), line = 619
+; optimize OK (Mind Field.pas), line = 617
 
 	lda I
 	cmp #$FF
@@ -2379,7 +2230,7 @@ l_05F5
 	beq *+5
 
 ; ForToDoProlog
-	jmp l_0603
+	jmp l_0590
 
 ; ---------------------  ASM Block 082  ---------------------
 
@@ -2400,29 +2251,29 @@ l_05F5
 
 
 ; ForToDoEpilog
-c_05F5
+c_0582
 	inc I						; inc ptr byte [CounterAddress]
 
 	seq
 
 ; WhileDoEpilog
-	jmp l_05F5
-l_0603
-b_05F5
+	jmp l_0582
+l_0590
+b_0582
 ; For
 
-; optimize OK (Mind Field.pas), line = 639
+; optimize OK (Mind Field.pas), line = 638
 
 	mva #$00 I
 
-; optimize OK (Mind Field.pas), line = 639
+; optimize OK (Mind Field.pas), line = 638
 
 ; To
-l_0617
+l_05A4
 
 ; ForToDoCondition
 
-; optimize OK (Mind Field.pas), line = 639
+; optimize OK (Mind Field.pas), line = 638
 
 	lda I
 	cmp #$3F
@@ -2430,39 +2281,219 @@ l_0617
 	beq *+5
 
 ; ForToDoProlog
-	jmp l_0625
+	jmp l_05B2
 
 ; ---------------------  ASM Block 083  ---------------------
 
 
-	LDA RANDOM
-	CLC
-	ADC #<game_screen
-	STA NDX0
-	LDA RANDOM
-	AND #3
-	ADC #>game_screen
-	STA NDX1
-	LDA #193
-	LDY #0
-	STA (NDX0),Y
+			LDA RANDOM
+			CLC
+			ADC #<game_screen
+			STA NDX0
+			LDA RANDOM
+			AND #3
+			ADC #>game_screen
+			STA NDX1
+			LDA #193
+			LDY #0
+			STA (NDX0),Y
 
 
 ; ForToDoEpilog
-c_0617
+c_05A4
 	inc I						; inc ptr byte [CounterAddress]
 
 	seq
 
 ; WhileDoEpilog
-	jmp l_0617
-l_0625
-b_0617
+	jmp l_05A4
+l_05B2
+b_05A4
+
+; optimize OK (Mind Field.pas), line = 655
+
+	mva #$7C CHARACTER_PX
+
+; optimize OK (Mind Field.pas), line = 656
+
+	mva #$D0 CHARACTER_PY
+
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 657
+	inx
+	mva CHARACTER_PX :STACKORIGIN,x
+	inx
+	mva #$30 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$04 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x A
+	dex
+
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 658
+	inx
+	mva CHARACTER_PY :STACKORIGIN,x
+	inx
+	mva #$18 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$08 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x B
+	dex
+; For
+
+; optimize OK (Mind Field.pas), line = 659
+
+	lda B
+	sub #$02
+	sta J
+
+; optimize OK (Mind Field.pas), line = 659
+
+	lda B
+	add #$03
+	sta @FORTMP_1536
+; To
+l_0606
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 659
+
+	lda J
+	cmp @FORTMP_1536
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_0614
+; For
+
+; optimize OK (Mind Field.pas), line = 660
+
+	lda A
+	sub #$02
+	sta I
+
+; optimize OK (Mind Field.pas), line = 660
+
+	lda A
+	add #$03
+	sta @FORTMP_1577
+; To
+l_062F
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 660
+
+	lda I
+	cmp @FORTMP_1577
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_063D
+
+; optimize OK (Mind Field.pas), line = 662
+
+	lda #$28
+	add I
+	sta :STACKORIGIN+9
+	lda #$08
+	adc #$00
+	sta :STACKORIGIN+STACKWIDTH+9
+	lda J
+	sta :ecx
+	lda #$28
+	sta :eax
+	.ifdef fmulinit
+	fmulu_8
+	els
+	imulCL
+	eif
+	lda :STACKORIGIN+9
+	add :eax
+	sta C
+	lda :STACKORIGIN+STACKWIDTH+9
+	adc :eax+1
+	sta C+1
+
+; optimize OK (Mind Field.pas), line = 663
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda (:bp),y
+	sta E
+
+; optimize OK (Mind Field.pas), line = 664
+
+	ldy #1
+	lda E
+	cmp #$C1
+	beq @+
+	dey
+@
+	.ifdef IFTMP_37
+	sty IFTMP_37
+	eif
+	tya
+	bne *+5
+	jmp l_066F
+
+; optimize OK (Mind Field.pas), line = 664
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda #$00
+	sta (:bp),y
+
+; IfThenEpilog
+l_066F
+
+; ForToDoEpilog
+c_062F
+	inc I						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_062F
+l_063D
+b_062F
+
+; ForToDoEpilog
+c_0606
+	inc J						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_0606
+l_0614
+b_0606
 
 ; -----------------------------------------------------------
 
-@FORTMP_1519	= $00FF
-@FORTMP_1553	= $003F
+@FORTMP_1404	= $00FF
+@FORTMP_1438	= $003F
+@FORTMP_1536	= DATAORIGIN+$0374
+@FORTMP_1577	= DATAORIGIN+$0375
+
+@VarData	= @FORTMP_1536
+@VarDataSize	= 2
+
 
 @exit
 	.ifdef @new
@@ -2473,63 +2504,63 @@ b_0617
 
 .local	DISPLAY_INFORMATION_LINE			; PROCEDURE
 
-	ift l_062E-*>3
-	jmp l_062E
+	ift l_0684-*>3
+	jmp l_0684
 	eif
 
 ; IfThenEpilog
-l_062E
+l_0684
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 659
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 676
 	inx
 	mva #$00 :STACKORIGIN,x
 	inx
 	sta :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 660
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 677
 	inx
 	mva #$0E :STACKORIGIN,x
 	mva #$81 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 661
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 678
 	inx
 	mva #$06 :STACKORIGIN,x
 	inx
 	mva #$00 :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02E4', Mind Field.pas), line = 662
+; optimize FAIL ('B_CRT.CRT_WRITE_02DA', Mind Field.pas), line = 679
 	inx
 	mva SCORE :STACKORIGIN,x
 	mva SCORE+1 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02E4
+	jsr B_CRT.CRT_WRITE_02DA
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 664
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 681
 	inx
 	mva #$0E :STACKORIGIN,x
 	inx
 	mva #$00 :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02AA', Mind Field.pas), line = 665
+; optimize FAIL ('B_CRT.CRT_WRITE_02B4', Mind Field.pas), line = 682
 	inx
 	mva #$16 :STACKORIGIN,x
 	mva #$81 :STACKORIGIN+STACKWIDTH,x
-	jsr B_CRT.CRT_WRITE_02AA
+	jsr B_CRT.CRT_WRITE_02B4
 
-; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 666
+; optimize FAIL ('B_CRT.CRT_GOTOXY', Mind Field.pas), line = 683
 	inx
 	mva #$14 :STACKORIGIN,x
 	inx
 	mva #$00 :STACKORIGIN,x
 	jsr B_CRT.CRT_GOTOXY
 
-; optimize FAIL ('B_CRT.CRT_WRITE_02D4', Mind Field.pas), line = 667
+; optimize FAIL ('B_CRT.CRT_WRITE_02CA', Mind Field.pas), line = 684
 	inx
 	mva LIVES :STACKORIGIN,x
-	jsr B_CRT.CRT_WRITE_02D4
+	jsr B_CRT.CRT_WRITE_02CA
 
 @exit
 	.ifdef @new
@@ -2542,21 +2573,21 @@ l_062E
 l_0125
 
 ; --- RepeatUntilProlog
-l_0647
+l_069D
 
-; optimize FAIL ('SHOWTITLESCREEN', Mind Field.pas), line = 680
+; optimize FAIL ('SHOWTITLESCREEN', Mind Field.pas), line = 697
 	jsr SHOWTITLESCREEN
 
-; optimize OK (Mind Field.pas), line = 683
+; optimize OK (Mind Field.pas), line = 700
 
 	mva #$00 SCORE
 	sta SCORE+1
 
-; optimize OK (Mind Field.pas), line = 684
+; optimize OK (Mind Field.pas), line = 701
 
 	mva #$05 LIVES
 
-; optimize FAIL ('B_CRT.CRT_INIT_0220', Mind Field.pas), line = 685
+; optimize FAIL ('B_CRT.CRT_INIT_022A', Mind Field.pas), line = 702
 	inx
 	mva #$00 :STACKORIGIN,x
 	mva #$08 :STACKORIGIN+STACKWIDTH,x
@@ -2564,130 +2595,322 @@ l_0647
 	mva #$28 :STACKORIGIN,x
 	inx
 	mva #$1A :STACKORIGIN,x
-	jsr B_CRT.CRT_INIT_0220
+	jsr B_CRT.CRT_INIT_022A
 
-; optimize FAIL ('B_CRT.CRT_CLEAR_026E', Mind Field.pas), line = 686
-	jsr B_CRT.CRT_CLEAR_026E
+; optimize FAIL ('B_CRT.CRT_CLEAR_0278', Mind Field.pas), line = 703
+	jsr B_CRT.CRT_CLEAR_0278
 
-; optimize FAIL ('DISPLAY_INFORMATION_LINE', Mind Field.pas), line = 687
+; optimize FAIL ('DISPLAY_INFORMATION_LINE', Mind Field.pas), line = 704
 	jsr DISPLAY_INFORMATION_LINE
 
-; optimize OK (Mind Field.pas), line = 688
+; optimize OK (Mind Field.pas), line = 705
 
 	mva #$53 ATARI.DLISTW
 	mva #$82 ATARI.DLISTW+1
 
-; optimize OK (Mind Field.pas), line = 689
+; optimize OK (Mind Field.pas), line = 706
 
 	mva #$53 ATARI.SDLSTW
 	mva #$82 ATARI.SDLSTW+1
 
-; optimize OK (Mind Field.pas), line = 690
+; optimize OK (Mind Field.pas), line = 707
 
 	mva #$00 ATARI.SAVMSC
 	mva #$08 ATARI.SAVMSC+1
 
-; optimize FAIL ('B_SYSTEM.SETCHARSET', Mind Field.pas), line = 691
+; optimize FAIL ('B_SYSTEM.SETCHARSET', Mind Field.pas), line = 708
 	inx
 	mva #$A4 :STACKORIGIN,x
 	jsr B_SYSTEM.SETCHARSET
 
-; optimize OK (Mind Field.pas), line = 692
+; optimize OK (Mind Field.pas), line = 709
 
 	mva #$A4 ATARI.CHBAS
 
-; optimize FAIL ('INITIALIZE_LEVEL', Mind Field.pas), line = 693
+; optimize FAIL ('INITIALIZE_LEVEL', Mind Field.pas), line = 710
 	jsr INITIALIZE_LEVEL
 
-; optimize OK (Mind Field.pas), line = 694
+; optimize OK (Mind Field.pas), line = 711
 
 	mva #$8E ATARI.COLOR0
 
-; optimize OK (Mind Field.pas), line = 695
+; optimize OK (Mind Field.pas), line = 712
 
 	mva #$D4 ATARI.COLOR1
 
-; optimize OK (Mind Field.pas), line = 696
-
-	mva #$46 ATARI.COLOR2
-
-; optimize OK (Mind Field.pas), line = 697
+; optimize OK (Mind Field.pas), line = 713
 
 	mva #$96 ATARI.COLOR3
 
-; optimize OK (Mind Field.pas), line = 698
+; optimize OK (Mind Field.pas), line = 714
 
 	mva #$22 ATARI.COLOR4
 
-; optimize OK (Mind Field.pas), line = 699
+; optimize OK (Mind Field.pas), line = 715
 
 	mva #$CA ATARI.COLPM0
 
-; optimize OK (Mind Field.pas), line = 700
+; optimize OK (Mind Field.pas), line = 716
 
 	mva #$FA ATARI.COLPM1
 
-; optimize OK (Mind Field.pas), line = 701
+; optimize OK (Mind Field.pas), line = 717
 
 	mva #$88 ATARI.COLPM2
 
-; optimize OK (Mind Field.pas), line = 702
+; optimize OK (Mind Field.pas), line = 718
 
 	mva #$24 ATARI.COLPM3
 
-; optimize OK (Mind Field.pas), line = 703
+; optimize OK (Mind Field.pas), line = 719
 
 	mva #$00 ATARI.SIZEP0
 
-; optimize OK (Mind Field.pas), line = 704
+; optimize OK (Mind Field.pas), line = 720
 
 	sta ATARI.SIZEP1
 
-; optimize OK (Mind Field.pas), line = 705
+; optimize OK (Mind Field.pas), line = 721
 
 	sta ATARI.SIZEP2
 
-; optimize OK (Mind Field.pas), line = 706
+; optimize OK (Mind Field.pas), line = 722
 
 	sta ATARI.SIZEP3
 
-; optimize FAIL ('B_SET_INTERUPTS.SETVBLI', Mind Field.pas), line = 707
+; optimize FAIL ('B_SET_INTERUPTS.SETVBLI', Mind Field.pas), line = 723
 	inx
 	mva <GAMEVBI :STACKORIGIN,x
 	mva >GAMEVBI :STACKORIGIN+STACKWIDTH,x
 	jsr B_SET_INTERUPTS.SETVBLI
 
-; optimize FAIL ('B_PMG.PMG_INIT_03DA', Mind Field.pas), line = 708
+; optimize FAIL ('B_PMG.PMG_INIT_03D0', Mind Field.pas), line = 724
 	inx
 	mva #$18 :STACKORIGIN,x
 	inx
 	mva #$3E :STACKORIGIN,x
-	jsr B_PMG.PMG_INIT_03DA
+	jsr B_PMG.PMG_INIT_03D0
 
-; optimize OK (Mind Field.pas), line = 709
+; optimize OK (Mind Field.pas), line = 725
 
 	mva #$C0 ATARI.NMIEN
 
-; optimize OK (Mind Field.pas), line = 712
+; optimize OK (Mind Field.pas), line = 727
 
-	mva #$7C CHARACTER_PX
+	mva #$B4 SHOW_COUNTDOWN
 
-; optimize OK (Mind Field.pas), line = 713
+; optimize OK (Mind Field.pas), line = 728
 
-	mva #$78 CHARACTER_PY
+	mva #$3F MIND_COLOR
 
-; optimize OK (Mind Field.pas), line = 714
+; optimize OK (Mind Field.pas), line = 730
 
 	mva #$00 F
 
-; optimize OK (Mind Field.pas), line = 719
+; optimize OK (Mind Field.pas), line = 735
 
 	mva RT_CHECK PRIOR_RT_CLOCK
 
 ; --- RepeatUntilProlog
-l_0700
+l_074F
 
-; optimize OK (Mind Field.pas), line = 721
+; optimize OK (Mind Field.pas), line = 737
+
+	ldy #1
+	lda MINDS_FOUND
+	cmp #$00
+	seq
+	bcs @+
+	dey
+@
+	sty :STACKORIGIN+9
+	ldy #1
+	lda SHOW_COUNTDOWN
+	beq @+
+	dey
+@
+	tya
+	and :STACKORIGIN+9
+	.ifdef IFTMP_38
+	sta IFTMP_38
+	eif
+	bne *+5
+	jmp l_076D
+
+; optimize OK (Mind Field.pas), line = 739
+
+	mva #$00 MINDS_FOUND
+
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 740
+	inx
+	mva CHARACTER_PX :STACKORIGIN,x
+	inx
+	mva #$30 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$04 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x A
+	dex
+
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 741
+	inx
+	mva CHARACTER_PY :STACKORIGIN,x
+	inx
+	mva #$18 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$08 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x B
+	dex
+; For
+
+; optimize OK (Mind Field.pas), line = 742
+
+	lda B
+	sub #$02
+	sta J
+
+; optimize OK (Mind Field.pas), line = 742
+
+	lda B
+	add #$03
+	sta @FORTMP_1968
+; To
+l_07B6
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 742
+
+	lda J
+	cmp @FORTMP_1968
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_07C4
+; For
+
+; optimize OK (Mind Field.pas), line = 743
+
+	lda A
+	sub #$02
+	sta I
+
+; optimize OK (Mind Field.pas), line = 743
+
+	lda A
+	add #$03
+	sta @FORTMP_2009
+; To
+l_07DF
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 743
+
+	lda I
+	cmp @FORTMP_2009
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_07ED
+
+; optimize OK (Mind Field.pas), line = 745
+
+	lda #$28
+	add I
+	sta :STACKORIGIN+9
+	lda #$08
+	adc #$00
+	sta :STACKORIGIN+STACKWIDTH+9
+	lda J
+	sta :ecx
+	lda #$28
+	sta :eax
+	.ifdef fmulinit
+	fmulu_8
+	els
+	imulCL
+	eif
+	lda :STACKORIGIN+9
+	add :eax
+	sta C
+	lda :STACKORIGIN+STACKWIDTH+9
+	adc :eax+1
+	sta C+1
+
+; optimize OK (Mind Field.pas), line = 746
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda (:bp),y
+	sta E
+
+; optimize OK (Mind Field.pas), line = 747
+
+	ldy #1
+	lda E
+	cmp #$41
+	beq @+
+	dey
+@
+	.ifdef IFTMP_39
+	sty IFTMP_39
+	eif
+	tya
+	bne *+5
+	jmp l_081F
+
+; optimize OK (Mind Field.pas), line = 747
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda #$C1
+	sta (:bp),y
+
+; IfThenEpilog
+l_081F
+
+; ForToDoEpilog
+c_07DF
+	inc I						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_07DF
+l_07ED
+b_07DF
+
+; ForToDoEpilog
+c_07B6
+	inc J						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_07B6
+l_07C4
+b_07B6
+
+; IfThenEpilog
+l_076D
+
+; optimize OK (Mind Field.pas), line = 750
 
 	ldy #1
 	lda PRIOR_RT_CLOCK
@@ -2695,18 +2918,22 @@ l_0700
 	bne @+
 	dey
 @
-	.ifdef IFTMP_37
-	sty IFTMP_37
+	.ifdef IFTMP_40
+	sty IFTMP_40
 	eif
 	tya
 	bne *+5
-	jmp l_0714
+	jmp l_0846
 
-; optimize OK (Mind Field.pas), line = 722
+; optimize OK (Mind Field.pas), line = 751
+
+	mva #$00 MINDS_FOUND
+
+; optimize OK (Mind Field.pas), line = 752
 
 	mva RT_CHECK PRIOR_RT_CLOCK
 
-; optimize OK (Mind Field.pas), line = 723
+; optimize OK (Mind Field.pas), line = 753
 
 	lda PRIOR_PY
 	sta :edx
@@ -2719,7 +2946,7 @@ l_0700
 	sta :eax
 	jsr @fill
 
-; optimize OK (Mind Field.pas), line = 724
+; optimize OK (Mind Field.pas), line = 754
 
 	lda F
 	asl @
@@ -2738,15 +2965,115 @@ l_0700
 	sta :eax+1
 	jsr @move
 
-; optimize OK (Mind Field.pas), line = 725
+; optimize OK (Mind Field.pas), line = 755
 
 	mva CHARACTER_PX ATARI.HPOSP0
 
-; optimize OK (Mind Field.pas), line = 726
+; optimize OK (Mind Field.pas), line = 756
 
 	mva CHARACTER_PY PRIOR_PY
 
-; optimize OK (Mind Field.pas), line = 727
+; optimize OK (Mind Field.pas), line = 757
+
+	ldy #1
+	lda SHOW_COUNTDOWN
+	cmp #$00
+	seq
+	bcs @+
+	dey
+@
+	.ifdef IFTMP_41
+	sty IFTMP_41
+	eif
+	tya
+	bne *+5
+	jmp l_0893
+
+; optimize OK (Mind Field.pas), line = 758
+
+	dec SHOW_COUNTDOWN
+
+; IfThenEpilog
+l_0893
+
+; Restore conditional expression
+	lda IFTMP_41
+
+; else condition
+	beq *+5						; je
+	jmp l_08AA
+
+; optimize OK (Mind Field.pas), line = 759
+
+	ldy #1
+	lda MIND_COLOR
+	cmp #$32
+	seq
+	bcs @+
+	dey
+@
+	.ifdef IFTMP_42
+	sty IFTMP_42
+	eif
+	tya
+	bne *+5
+	jmp l_08BC
+
+; optimize OK (Mind Field.pas), line = 760
+
+	dec MIND_COLOR
+
+; optimize OK (Mind Field.pas), line = 761
+
+	ldy #1
+	lda MIND_COLOR
+	cmp #$32
+	beq @+
+	dey
+@
+	.ifdef IFTMP_43
+	sty IFTMP_43
+	eif
+	tya
+	bne *+5
+	jmp l_08DC
+
+; optimize OK (Mind Field.pas), line = 761
+
+	mva #$22 MIND_COLOR
+
+; IfThenEpilog
+l_08DC
+
+; IfThenEpilog
+l_08BC
+
+; IfThenEpilog
+l_08AA
+
+; optimize OK (Mind Field.pas), line = 763
+
+	ldy #1
+	lda MIND_COLOR
+	cmp #$22
+	beq @+
+	dey
+@
+	sty :STACKORIGIN+9
+	ldy #1
+	lda SHOW_COUNTDOWN
+	beq @+
+	dey
+@
+	tya
+	and :STACKORIGIN+9
+	.ifdef IFTMP_44
+	sta IFTMP_44
+	eif
+	bne *+5
+	jmp l_0906
+
+; optimize OK (Mind Field.pas), line = 765
 
 	lda ATARI.PORTA
 	and #$0F
@@ -2755,16 +3082,16 @@ l_0700
 ; ---------------------  ASM Block 084  ---------------------
 
 
-									lda RT_CHECK
-									AND #4
-									STA G
-		            
+															lda RT_CHECK
+															AND #4
+															STA G
+								            
 
-; optimize OK (Mind Field.pas), line = 733
+; optimize OK (Mind Field.pas), line = 771
 
 	mva #$00 F
 
-; optimize OK (Mind Field.pas), line = 734
+; optimize OK (Mind Field.pas), line = 772
 
 	lda STICK_READ
 	ldy #1
@@ -2772,27 +3099,27 @@ l_0700
 	beq @+
 	dey
 @
-	.ifdef IFTMP_38
-	sty IFTMP_38
+	.ifdef IFTMP_45
+	sty IFTMP_45
 	eif
 	tya
 	bne *+5
-	jmp l_0772
+	jmp l_0931
 
-; optimize OK (Mind Field.pas), line = 735
+; optimize OK (Mind Field.pas), line = 773
 
 	dec CHARACTER_PY
 
-; optimize OK (Mind Field.pas), line = 736
+; optimize OK (Mind Field.pas), line = 774
 
 	lda #$01
 	add G
 	sta F
 
 ; IfThenEpilog
-l_0772
+l_0931
 
-; optimize OK (Mind Field.pas), line = 738
+; optimize OK (Mind Field.pas), line = 776
 
 	lda STICK_READ
 	ldy #1
@@ -2800,27 +3127,27 @@ l_0772
 	beq @+
 	dey
 @
-	.ifdef IFTMP_39
-	sty IFTMP_39
+	.ifdef IFTMP_46
+	sty IFTMP_46
 	eif
 	tya
 	bne *+5
-	jmp l_07A5
+	jmp l_0964
 
-; optimize OK (Mind Field.pas), line = 739
+; optimize OK (Mind Field.pas), line = 777
 
 	inc CHARACTER_PY
 
-; optimize OK (Mind Field.pas), line = 740
+; optimize OK (Mind Field.pas), line = 778
 
 	lda #$03
 	add G
 	sta F
 
 ; IfThenEpilog
-l_07A5
+l_0964
 
-; optimize OK (Mind Field.pas), line = 742
+; optimize OK (Mind Field.pas), line = 780
 
 	lda STICK_READ
 	ldy #1
@@ -2828,27 +3155,27 @@ l_07A5
 	beq @+
 	dey
 @
-	.ifdef IFTMP_40
-	sty IFTMP_40
+	.ifdef IFTMP_47
+	sty IFTMP_47
 	eif
 	tya
 	bne *+5
-	jmp l_07D8
+	jmp l_0997
 
-; optimize OK (Mind Field.pas), line = 743
+; optimize OK (Mind Field.pas), line = 781
 
 	dec CHARACTER_PX
 
-; optimize OK (Mind Field.pas), line = 744
+; optimize OK (Mind Field.pas), line = 782
 
 	lda #$02
 	add G
 	sta F
 
 ; IfThenEpilog
-l_07D8
+l_0997
 
-; optimize OK (Mind Field.pas), line = 746
+; optimize OK (Mind Field.pas), line = 784
 
 	lda STICK_READ
 	ldy #1
@@ -2856,45 +3183,267 @@ l_07D8
 	beq @+
 	dey
 @
-	.ifdef IFTMP_41
-	sty IFTMP_41
+	.ifdef IFTMP_48
+	sty IFTMP_48
 	eif
 	tya
 	bne *+5
-	jmp l_080B
+	jmp l_09CA
 
-; optimize OK (Mind Field.pas), line = 747
+; optimize OK (Mind Field.pas), line = 785
 
 	inc CHARACTER_PX
 
-; optimize OK (Mind Field.pas), line = 748
+; optimize OK (Mind Field.pas), line = 786
 
 	lda #$04
 	add G
 	sta F
 
 ; IfThenEpilog
-l_080B
+l_09CA
 
 ; IfThenEpilog
-l_0714
+l_0906
 
-; optimize FAIL ('B_CRT.CRT_KEYPRESSED', Mind Field.pas), line = 751
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 789
+	inx
+	mva CHARACTER_PX :STACKORIGIN,x
+	inx
+	mva #$30 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$04 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x A
+	dex
+
+; optimize FAIL ('idivCARD', Mind Field.pas), line = 790
+	inx
+	mva CHARACTER_PY :STACKORIGIN,x
+	inx
+	mva #$18 :STACKORIGIN,x
+	jsr @expandToCARD1.BYTE
+	jsr @expandToCARD.BYTE
+	jsr subEAX_ECX
+	mva #$08 :STACKORIGIN,x
+	jsr @expandToCARD.BYTE
+	jsr idivCARD
+	jsr movaBX_EAX
+	dex
+	mva :STACKORIGIN,x B
+	dex
+; For
+
+; optimize OK (Mind Field.pas), line = 791
+
+	lda B
+	sub #$02
+	sta J
+
+; optimize OK (Mind Field.pas), line = 791
+
+	lda B
+	add #$03
+	sta @FORTMP_2596
+; To
+l_0A2A
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 791
+
+	lda J
+	cmp @FORTMP_2596
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_0A38
+; For
+
+; optimize OK (Mind Field.pas), line = 792
+
+	lda A
+	sub #$02
+	sta I
+
+; optimize OK (Mind Field.pas), line = 792
+
+	lda A
+	add #$03
+	sta @FORTMP_2637
+; To
+l_0A53
+
+; ForToDoCondition
+
+; optimize OK (Mind Field.pas), line = 792
+
+	lda I
+	cmp @FORTMP_2637
+	bcc *+7
+	beq *+5
+
+; ForToDoProlog
+	jmp l_0A61
+
+; optimize OK (Mind Field.pas), line = 794
+
+	lda #$28
+	add I
+	sta :STACKORIGIN+9
+	lda #$08
+	adc #$00
+	sta :STACKORIGIN+STACKWIDTH+9
+	lda J
+	sta :ecx
+	lda #$28
+	sta :eax
+	.ifdef fmulinit
+	fmulu_8
+	els
+	imulCL
+	eif
+	lda :STACKORIGIN+9
+	add :eax
+	sta C
+	lda :STACKORIGIN+STACKWIDTH+9
+	adc :eax+1
+	sta C+1
+
+; optimize OK (Mind Field.pas), line = 795
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda (:bp),y
+	sta E
+
+; optimize OK (Mind Field.pas), line = 796
+
+	ldy #1
+	lda E
+	cmp #$C1
+	beq @+
+	dey
+@
+	.ifdef IFTMP_49
+	sty IFTMP_49
+	eif
+	tya
+	bne *+5
+	jmp l_0A93
+
+; optimize OK (Mind Field.pas), line = 798
+
+	ldy #1
+	lda J
+	cmp B
+	beq @+
+	dey
+@
+	sty :STACKORIGIN+9
+	ldy #1
+	lda I
+	cmp A
+	beq @+
+	dey
+@
+	tya
+	ora :STACKORIGIN+9
+	sta :STACKORIGIN+9
+	lda A
+	add #$01
+	sta :STACKORIGIN+11
+	lda #$00
+	adc #$00
+	sta :STACKORIGIN+STACKWIDTH+11
+	ldy #1
+	lda #$00
+	cmp :STACKORIGIN+STACKWIDTH+11
+	bne @+
+	lda I
+	cmp :STACKORIGIN+11
+@
+	beq @+
+	dey
+@
+	tya
+	ora :STACKORIGIN+9
+	.ifdef IFTMP_50
+	sta IFTMP_50
+	eif
+	bne *+5
+	jmp l_0AC8
+
+; optimize OK (Mind Field.pas), line = 798
+
+	mva #$01 MINDS_UNDER
+
+; IfThenEpilog
+l_0AC8
+
+; optimize OK (Mind Field.pas), line = 799
+
+	lda C+1
+	sta :bp+1
+	ldy C
+	lda #$41
+	sta (:bp),y
+
+; optimize OK (Mind Field.pas), line = 800
+
+	inc MINDS_FOUND
+
+; IfThenEpilog
+l_0A93
+
+; ForToDoEpilog
+c_0A53
+	inc I						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_0A53
+l_0A61
+b_0A53
+
+; ForToDoEpilog
+c_0A2A
+	inc J						; inc ptr byte [CounterAddress]
+
+	seq
+
+; WhileDoEpilog
+	jmp l_0A2A
+l_0A38
+b_0A2A
+
+; IfThenEpilog
+l_0846
+
+; optimize FAIL ('B_CRT.CRT_KEYPRESSED', Mind Field.pas), line = 804
 	jsr B_CRT.CRT_KEYPRESSED
 	dex
 	lda :STACKORIGIN+1,x
 	bne *+5
-c_0700
-	jmp l_0700
-b_0700
+c_074F
+	jmp l_074F
+b_074F
 
-; optimize OK (Mind Field.pas), line = 753
+; optimize OK (Mind Field.pas), line = 806
 
 	lda #$00
 	bne *+5
-c_0647
-	jmp l_0647
-b_0647
+c_069D
+	jmp l_069D
+b_069D
 
 ; -----------------------------------------------------------
 
@@ -2975,51 +3524,44 @@ NDX2	= $00EC
 NDX3	= $00ED
 HOLDX	= $00EE
 HOLDY	= $00EF
-SPRITENUM	= $1980
-SETSP0COLOR	= $1990
-SETSP1COLOR	= $19A0
-SETSPWIDTH	= $19B0
-SPRITENHOZ	= $19C0
-SPRITENVRT	= $19E0
-SPHOZNEXT	= $19F0
-SCREEN_LINE_ADDR_LOW	= $1800
-SCREEN_LINE_ADDR_HIGH	= $1820
-SPRHZ0	= $1A00
-SPRHZ1	= $1A10
-SPRHZ2	= $1A20
-SPRHZ3	= $1A30
-SPZONT	= $1A40
-SPZONB	= $1A50
-SPSRC0	= $1A60
-SPSRC1	= $1A78
-SPSRC2	= $1A90
-SPSRC3	= $1AA8
-SPSRC4	= $1AC0
-SPRITEUSE	= $1AD8
 A	= DATAORIGIN+$033B
 B	= DATAORIGIN+$033C
 C	= DATAORIGIN+$033D
-D	= DATAORIGIN+$033E
-E	= DATAORIGIN+$033F
-F	= DATAORIGIN+$0340
-G	= DATAORIGIN+$0341
-H	= DATAORIGIN+$0342
-I	= DATAORIGIN+$0343
-J	= DATAORIGIN+$0344
-K	= DATAORIGIN+$0345
-L	= DATAORIGIN+$0346
-CHARACTER_PX	= DATAORIGIN+$0347
-CHARACTER_PY	= DATAORIGIN+$0348
-PRIOR_PY	= DATAORIGIN+$0349
-STICK_READ	= DATAORIGIN+$034A
-PRIOR_RT_CLOCK	= DATAORIGIN+$034B
-TITLEPHASE	= DATAORIGIN+$034C
-SCORE	= DATAORIGIN+$034D
-LIVES	= DATAORIGIN+$034F
-adr.HISCORE	= DATAORIGIN+$0350
+D	= DATAORIGIN+$033F
+E	= DATAORIGIN+$0341
+F	= DATAORIGIN+$0342
+G	= DATAORIGIN+$0343
+H	= DATAORIGIN+$0344
+I	= DATAORIGIN+$0345
+J	= DATAORIGIN+$0346
+K	= DATAORIGIN+$0347
+L	= DATAORIGIN+$0348
+CHARACTER_PX	= DATAORIGIN+$0349
+CHARACTER_PY	= DATAORIGIN+$034A
+PRIOR_PY	= DATAORIGIN+$034B
+STICK_READ	= DATAORIGIN+$034C
+PRIOR_RT_CLOCK	= DATAORIGIN+$034D
+MENU_SELECTION	= DATAORIGIN+$034E
+FIND_OPTION	= DATAORIGIN+$034F
+BOMBS_ON_OPTION	= DATAORIGIN+$0350
+WALLS_ON_OPTION	= DATAORIGIN+$0351
+SHOOTERS_OPTION	= DATAORIGIN+$0352
+MIND_COLOR	= DATAORIGIN+$0353
+SHOW_COUNTDOWN	= DATAORIGIN+$0354
+MINDS_FOUND	= DATAORIGIN+$0355
+MINDS_UNDER	= DATAORIGIN+$0356
+TITLEPHASE	= DATAORIGIN+$0357
+SCORE	= DATAORIGIN+$0358
+LIVES	= DATAORIGIN+$035A
+adr.HISCORE	= DATAORIGIN+$035B
 .var HISCORE	= adr.HISCORE .word
-TOPMEM	= DATAORIGIN+$0366
-CHBASE1	= DATAORIGIN+$0368
+TOPMEM	= DATAORIGIN+$0371
+CHBASE1	= DATAORIGIN+$0373
+@FORTMP_1968	= DATAORIGIN+$0376
+@FORTMP_2009	= DATAORIGIN+$0377
+IFTMP_41	= DATAORIGIN+$0378
+@FORTMP_2596	= DATAORIGIN+$0379
+@FORTMP_2637	= DATAORIGIN+$037A
 
 @exit
 
@@ -3156,10 +3698,11 @@ DATAORIGIN
 .by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00
 .by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00
 .by  $00 $00 $00 $00 $00 $00 $00 $03  $0E $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00
-.by  $00 $00 $00 $00 $00 $9A $10 $00  $00 $00 $4C $1D $7C $15 $AC $0D  $C4 $09 $F4 $01
+.by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $9A $10 $00 $00 $00 $4C $1D $7C
+.by  $15 $AC $0D $C4 $09 $F4 $01
 
 VARINITSIZE	= *-DATAORIGIN
-VARDATASIZE	= 873
+VARDATASIZE	= 891
 
 PROGRAMSTACK	= DATAORIGIN+VARDATASIZE
 
@@ -3178,10 +3721,10 @@ PROGRAMSTACK	= DATAORIGIN+VARDATASIZE
 .by  $00 $28 $25 $32 $25 $09 $00 $00  $28 $00 $27 $32 $21 $30 $28 $29  $23 $33 $00 $00 $00 $00 $00 $00
 .by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00
 .by  $00 $00 $28 $00 $33 $2F $35 $2E  $24 $00 $21 $2E $24 $00 $2D $35  $33 $29 $23 $00 $00 $00 $00 $00
-.by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $08 $33 $23 $2F
-.by  $32 $25 $00 $1A $00 $00 $13 $34  $2F $24 $21 $39 $33 $00 $28 $29  $27 $28 $00 $33 $23 $2F $32 $25
-.by  $33 $0E $00 $02 $00 $1A $00 $15  $30 $32 $25 $33 $33 $00 $33 $34  $21 $32 $34 $00 $34 $2F $00 $22
-.by  $25 $27 $29 $2E $0E $00 $06 $33  $23 $2F $32 $25 $1A $00 $06 $2C  $29 $36 $25 $33 $1A $00 $6C $6A
+.by  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $00 $00 $00 $00  $00 $00 $00 $00 $15 $30 $32 $25
+.by  $33 $33 $00 $33 $34 $21 $32 $34  $00 $34 $2F $00 $22 $25 $27 $29  $2E $0E $00 $08 $33 $23 $2F $32
+.by  $25 $00 $1A $00 $00 $13 $34 $2F  $24 $21 $39 $33 $00 $28 $29 $27  $28 $00 $33 $23 $2F $32 $25 $33
+.by  $0E $00 $02 $00 $1A $00 $06 $33  $23 $2F $32 $25 $1A $00 $06 $2C  $29 $36 $25 $33 $1A $00 $6C $6A
 .by  $3B $FF $FF $6B $2B $2A $6F $FF  $70 $75 $9B $69 $2D $3D $76 $FF  $63 $FF $FF $62 $78 $7A $34 $FF
 .by  $33 $36 $1B $35 $32 $31 $2C $20  $2E $6E $FF $6D $2F $81 $72 $FF  $65 $79 $7F $74 $77 $71 $39 $FF
 .by  $30 $37 $7E $38 $3E $FF $66 $68  $64 $FF $82 $67 $73 $61 $4C $4A  $3A $FF $FF $4B $5C $5E $4F $FF
@@ -3197,11 +3740,11 @@ PROGRAMSTACK	= DATAORIGIN+VARDATASIZE
 .by  $00 $04 $00 $04 $00 $04 $00 $04  $00 $04 $00 $04 $00 $04 $00 $04  $41 $1E $82 $70 $70 $44 $00 $08
 .by  $10 $04 $04 $04 $04 $04 $04 $04  $04 $04 $04 $04 $04 $04 $04 $04  $04 $04 $04 $04 $04 $04 $04 $04
 .by  $04 $04 $04 $41 $53 $82 $10 $38  $38 $7C $7C $7C $7C $38 $38 $38  $28 $28 $28 $28 $10 $38 $38 $78
-.by  $78 $7C $7E $3A $3A $38 $28 $2C  $24 $20 $1C $1C $0C $1E $1E $1E  $1E $1C $18 $38 $38 $2C $24 $0C
-.by  $10 $38 $38 $3C $3C $7C $FC $B8  $B8 $38 $28 $2C $24 $20 $1C $1C  $18 $3C $3C $3C $3C $1C $0C $0E
-.by  $0E $1A $12 $18 $10 $38 $38 $3C  $3C $7C $FC $B8 $B8 $38 $28 $68  $48 $48 $1C $1C $0C $1C $1E $1F
-.by  $7E $1C $18 $1C $14 $16 $12 $16  $10 $38 $38 $78 $78 $7C $7E $3A  $3A $38 $28 $68 $48 $48 $1C $1C
-.by  $18 $1C $3C $7C $3F $1C $0C $1C  $14 $34 $24 $34 $C3 $C3 $66 $3C  $18 $3C $7E $7E $7E $7E $7E $7E
+.by  $78 $7C $7E $3A $3A $38 $28 $2C  $24 $20 $1C $1C $0C $1E $3E $3E  $1E $1C $18 $18 $18 $1C $1C $14
+.by  $10 $38 $38 $3C $3C $7C $FC $B8  $B8 $38 $28 $2C $24 $20 $1C $1C  $18 $3C $3E $3E $3C $1C $0C $0C
+.by  $0C $1C $1C $14 $10 $38 $38 $3C  $3C $7C $FC $B8 $B8 $38 $28 $68  $48 $48 $1C $1C $0C $1C $1E $1D
+.by  $3E $3C $18 $18 $24 $22 $41 $41  $10 $38 $38 $78 $78 $7C $7E $3A  $3A $38 $28 $68 $48 $48 $1C $1C
+.by  $18 $1C $3C $5C $3E $1E $0C $0C  $12 $22 $41 $41 $C3 $C3 $66 $3C  $18 $3C $7E $7E $7E $7E $7E $7E
 .by  $3C $18 $00 $C6 $C6 $6C $38 $38  $7C $7C $7C $7C $7C $7C $38 $10  $00 $66 $66 $3C $18 $18 $3C $3C
 .by  $3C $3C $3C $3C $18 $00 $00 $00  $C3 $66 $3C $18 $3C $7E $7E $7E  $7E $18 $00 $00 $00 $00 $C6 $6C
 .by  $38 $10 $38 $7C $7C $7C $7C $38  $00 $00 $00 $00 $00 $66 $3C $18  $18 $3C $3C $3C $18 $00 $00 $00
