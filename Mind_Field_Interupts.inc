@@ -13,8 +13,8 @@ procedure TitleVBI;assembler;interrupt;
 	};	
 end;
  
-procedure GameVBI;assembler;interrupt;
-	
+procedure GameVBI;interrupt;  //  assembler;
+	begin
 	asm {
 		lda #<title00dli
 		sta vdslst+0
@@ -30,7 +30,13 @@ inc_rt_clock
 		inc rtclok+1
 		bne no_inc_other_clock
 		inc rtclok
-no_inc_other_clock				
+no_inc_other_clock	
+    };  
+//
+// Can we do some no ASM within the VBI?
+//     
+
+    asm {		
 		jmp XITVBV
 	};	
 end;
@@ -65,9 +71,9 @@ procedure title01dli;assembler;interrupt;
 	lda #142
 	sta wsync
 	sta colpf0
-	lda #10
+	lda #216
 	sta colpf1
-	lda #186
+	lda #56
 	sta colpf2
 	lda #>CHARSET_GAME
  	sta chbase

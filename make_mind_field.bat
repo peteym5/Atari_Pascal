@@ -7,10 +7,10 @@ REM  -page: $ address address on the zero page for variables (24 bytes)
  
 setlocal
 
-set PATH=%PATH%;e:\"Mad Pascal";e:\"Mad Pascal"\lib;e:\"Mad Pascal"\blibs;e:\"Mad Pascal"\base
+set PATH=%PATH%;..\;..\lib;e:..\blibs;e:..\base
 
 mp "Mind Field.pas" -code:$8000 -data:$A000 -stack:$80 -zpage:$C0
 
-mads.exe e:\"Mad Pascal"\"Mind Field"\"Mind Field.a65" -i:..\base -x -o:"Mind Field.xex" -l:__MindField.txt
+mads.exe "Mind Field.a65" -i:..\base-rom -x -o:"Mind Field.xex" -l:__MindField.txt
 
 pause

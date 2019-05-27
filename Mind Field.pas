@@ -5,7 +5,7 @@
 // {$DEFINE Platform_Vic20}           
 // {$DEFINE Platform_Atari_5200}
 // {$DEFINE Platform_Commodore64}
-
+// {$DEFINE Use_Hi_Lo}
 program Mind_Field_Cartridge;
 {$ifdef Platform_Atari_8_bit}
 uses atari, b_system, b_crt, b_pmg, b_set_interupts;    // CRT using 8-bit OS!   blibs libraries independant from OS!
@@ -15,30 +15,38 @@ uses atari5200, b_system, b_crt, b_pmg, b_set_interupts;    // CRT using 8-bit O
 {$endif}
     
 
+// Todo....
+// Speed up Mind Scanning
+// Show Mind Count
+// Different options for mind detection
+// Dodge Dropping Bmmbs.
+// Collect Bonus Items on Mind Field
+// Avoid Machine Gun Bunkers
+// Top of Mind Field Advances to next one.
+
+
 
 // Pascal Reserved Words
-// 	and			array		begin			case			const
-// 	div			do			downto		else			end
-// 	file		for			function	goto			if
-// 	in			label		mod				nil				not
-// 	of			or			packed		procedure	program
-// 	record	repeat	set				then			to
-// 	type		until		var				while			with
+// 	and	        array		begin		case			const
+// 	div	        do			downto		else			end
+// 	file        for			function	goto			if
+// 	in          label		mod			nil				not
+// 	of          or			packed		procedure       program
+// 	record      repeat      set			then            to
+// 	type        until		var			while			with
 
-const
-	
-
-  
+const  
   {$ifdef Platform_Atari_Antic}
 	{$R 'resources.rc'}	     
-	SCREEN_ADDR						= $0800;
-	GAME_SCREEN						= SCREEN_ADDR + 40;
+  SCREEN_ADDR						= $0800;
+  GAME_SCREEN						= SCREEN_ADDR + 40;
   PMBANK                = $1800;
   VARBANK               = $0600;
-	CHARSET_GAME          = $A400;
-	CHARSET_TITLE         = $A800;
-	TITLE_DATA						= $AC00;
-	CHARSET_BASE					= $A4;
+  LOCALVAR              = VARBANK + $E0;
+  CHARSET_GAME          = $A400;
+  CHARSET_TITLE         = $A800;
+  TITLE_DATA						= $AC00;
+  CHARSET_BASE					= $A4;
   {$endif}
   
   {$ifdef Platform_Commodor64}
@@ -76,6 +84,32 @@ const
   lo(word(@display_list_game)), 
   hi(word(@display_list_game))
   );
+  
+  {$ifdef Use_Hi_lo}
+  screen_row_low: array [0..25] of byte = (
+	lo(GAME_SCREEN + 000), lo(GAME_SCREEN + 040), lo(GAME_SCREEN + 080), lo(GAME_SCREEN + 120), lo(GAME_SCREEN + 160),
+	lo(GAME_SCREEN + 200), lo(GAME_SCREEN + 240), lo(GAME_SCREEN + 280), lo(GAME_SCREEN + 320), lo(GAME_SCREEN + 360),
+	lo(GAME_SCREEN + 400), lo(GAME_SCREEN + 440), lo(GAME_SCREEN + 480), lo(GAME_SCREEN + 520), lo(GAME_SCREEN + 560),
+	lo(GAME_SCREEN + 600), lo(GAME_SCREEN + 640), lo(GAME_SCREEN + 680), lo(GAME_SCREEN + 720), lo(GAME_SCREEN + 760),
+	lo(GAME_SCREEN + 800), lo(GAME_SCREEN + 840), lo(GAME_SCREEN + 880), lo(GAME_SCREEN + 920), lo(GAME_SCREEN + 960),
+	lo(GAME_SCREEN + 1000));
+
+  screen_row_high: array [0..25] of byte = (
+	hi(GAME_SCREEN + 000), hi(GAME_SCREEN + 040), hi(GAME_SCREEN + 080), hi(GAME_SCREEN + 120), hi(GAME_SCREEN + 160),
+	hi(GAME_SCREEN + 200), hi(GAME_SCREEN + 240), hi(GAME_SCREEN + 280), hi(GAME_SCREEN + 320), hi(GAME_SCREEN + 360),
+	hi(GAME_SCREEN + 400), hi(GAME_SCREEN + 440), hi(GAME_SCREEN + 480), hi(GAME_SCREEN + 520), hi(GAME_SCREEN + 560),
+	hi(GAME_SCREEN + 600), hi(GAME_SCREEN + 640), hi(GAME_SCREEN + 680), hi(GAME_SCREEN + 720), hi(GAME_SCREEN + 760),
+	hi(GAME_SCREEN + 800), hi(GAME_SCREEN + 840), hi(GAME_SCREEN + 880), hi(GAME_SCREEN + 920), hi(GAME_SCREEN + 960),
+	hi(GAME_SCREEN + 1000));
+  {$else}
+  screen_rows: array [0..25] of word = (
+	GAME_SCREEN + 00,GAME_SCREEN + 40,GAME_SCREEN + 80,GAME_SCREEN + 120,GAME_SCREEN + 160,
+	GAME_SCREEN + 200,GAME_SCREEN + 240,GAME_SCREEN + 280,GAME_SCREEN + 320,GAME_SCREEN + 360,
+	GAME_SCREEN + 400,GAME_SCREEN + 440,GAME_SCREEN + 480,GAME_SCREEN + 520,GAME_SCREEN + 560,
+	GAME_SCREEN + 600,GAME_SCREEN + 640,GAME_SCREEN + 680,GAME_SCREEN + 720,GAME_SCREEN + 760,
+	GAME_SCREEN + 800,GAME_SCREEN + 840,GAME_SCREEN + 880,GAME_SCREEN + 920,GAME_SCREEN + 960,
+	GAME_SCREEN + 1000);  
+  {$endif}
 
 
 P000:ARRAY[0..13] OF BYTE = (
@@ -402,7 +436,7 @@ P019:ARRAY[0..13] OF BYTE = (
 
 	
 	spriteframes: array[0..19] of pointer = (@P000, @P001, @P002, @P003, @P004, @P005, @P006,@P007, @P008, @P009,
-																	         @P010, @P011, @P012, @P013, @P014, @P015, @P016,@P017, @P018, @P019);
+											 @P010, @P011, @P012, @P013, @P014, @P015, @P016,@P017, @P018, @P019);
 
 
 
@@ -411,59 +445,69 @@ P019:ARRAY[0..13] OF BYTE = (
   {$i 'Mind_Field_Interupts.inc'}
 
 var
-	RT_CHECK								: byte absolute $14;
-  PRIOR								    : byte absolute $D01B;
-  TMP0								    : byte absolute $E0;
-  TMP1								    : byte absolute $E1;
-  TMP2								    : byte absolute $E2;
-  TMP3								    : byte absolute $E3;
-  TMP4								    : byte absolute $E4;
-  TMP5								    : byte absolute $E5;
-  TMP6								    : byte absolute $E6;
-  TMP7								    : byte absolute $E7;
-  TMP8								    : byte absolute $E8;
-  TMP9								    : byte absolute $E9;
-  NDX0								    : byte absolute $EA;
-  NDX1								    : byte absolute $EB;
-  NDX2								    : byte absolute $EC;
-  NDX3								    : byte absolute $ED;
-  HOLDX								    : byte absolute $EE;
-  HOLDY								    : byte absolute $EF;
+    RT_CHECK								: byte absolute $14;
+    PRIOR								    : byte absolute $D01B;
+    TMP0								    : byte absolute $E0;
+    TMP1								    : byte absolute $E1;
+    TMP2								    : byte absolute $E2;
+    TMP3								    : byte absolute $E3;
+    TMP4								    : byte absolute $E4;
+    TMP5								    : byte absolute $E5;
+    TMP6								    : byte absolute $E6;
+    TMP7								    : byte absolute $E7;
+    TMP8								    : byte absolute $E8;
+    TMP9								    : byte absolute $E9;
+    NDX0								    : byte absolute $EA;
+    NDX1								    : byte absolute $EB;
+    NDX2								    : byte absolute $EC;
+    NDX3								    : byte absolute $ED;
+    HOLDX								    : byte absolute $EE;
+    HOLDY								    : byte absolute $EF;
     
-	a : Byte;
-  b : Byte;  
-	c : Word;
-  d : Word;  
-	e : Byte;
-  f : Byte;  
-	g : Byte;
-  h : Byte;  
-	i : Byte;
-  j : Byte;
-  k : Byte;
-  l : Byte;
+    
+
+  a :       Byte absolute VARBANK + $000;
+  b :       Byte absolute VARBANK + $002;  
+  c :       Word absolute VARBANK + $004;
+  d :       Word absolute VARBANK + $006;  
+  e :       Byte absolute VARBANK + $008;
+  f :       Byte absolute VARBANK + $00A;  
+  g :       Byte absolute VARBANK + $00C;
+  h :       Byte absolute VARBANK + $00E;  
+  i :       Byte absolute VARBANK + $010;
+  j :       Byte absolute VARBANK + $012;
+  k :       Byte absolute VARBANK + $014;
+  l :       Byte absolute VARBANK + $016;
+  m :       Byte absolute VARBANK + $018;
+  n :       Byte absolute VARBANK + $01A;
+  o :       Byte absolute VARBANK + $01C;
+  p :       Byte absolute VARBANK + $01E;
+
   
-  character_px :byte;
-  character_py :byte;
-  prior_py :byte;
-  stick_read: byte; 
-  prior_rt_clock: byte;
-  
-  menu_selection: byte;
-  find_option: byte;
-  bombs_on_option: byte;
-  walls_on_option: byte;
-  shooters_option: byte;
-  mind_color: byte;
-	show_countdown: byte;
-	minds_found: byte;
-	minds_under: byte;
-	titlephase: Byte = 0;
-  score: word = 4250;
-  lives : Byte;
-  hiscore  : array [0..10] of word = (0,7500,5500,3500,2500,0500,00,00,00,00,0);
-  topMem : word;
-  chbase1 : byte;
+    character_px :              byte absolute VARBANK + $020;
+    character_py :              byte absolute VARBANK + $021;
+    character_status :          byte absolute VARBANK + $022;
+    prior_py :                  byte absolute VARBANK + $024;
+    stick_read:                 byte absolute VARBANK + $026; 
+    prior_rt_clock:             byte absolute VARBANK + $028;
+    menu_selection:             byte absolute VARBANK + $02A;
+    find_option:                byte absolute VARBANK + $02C;
+    bombs_on_option:            byte absolute VARBANK + $02E;
+    walls_on_option:            byte absolute VARBANK + $030;
+    shooters_option:            byte absolute VARBANK + $032;
+    mind_color:                 byte absolute VARBANK + $034;
+    show_countdown:             byte absolute VARBANK + $036;
+    minds_found:                byte absolute VARBANK + $038;
+    minds_under:                byte absolute VARBANK + $03A;
+    titlephase:                 byte absolute VARBANK + $03C;
+    score:                      word absolute VARBANK + $03E;
+    lives :                     byte absolute VARBANK + $040;
+    topMem :                    word absolute VARBANK + $042;
+    chbase1 :                   byte absolute VARBANK + $044;
+    row_addr :                  word absolute VARBANK + $046; 
+
+    hiscore  : array [0..10] of word absolute VARBANK + $100; //  can we initialize it as blank?    = (0,7500,5500,3500,2500,0500,00,00,00,00,0);
+
 
 procedure ShowTitleScreen;
 begin
@@ -471,6 +515,8 @@ begin
   // InitGraph(0);
   // chbase1 :=180;
   topMem := chbase1 * 256;
+  titlephase := 0;
+  score := 4250;
 asm {
 ;	  ICL "Atari 8-bit Equates.asm"
 		
@@ -654,7 +700,8 @@ asm {
 	begin
 				character_px :=124;
 				character_py :=208;
-				a := (character_px - 48) DIV 4;
+				character_status :=0;
+                a := (character_px - 48) DIV 4;
 				b := (character_py - 24) DIV 8;
 				for j := b - 2 to b + 3 do
 					for i := a - 2 to a + 3 do
@@ -712,95 +759,110 @@ begin
         color1:=212;        
         color3:=150;
         color4:=34;
-				colpm0:=202;
-				colpm1:=250;
-				colpm2:=136;
-				colpm3:=36;				
-				sizep0:= PMG_SIZE_NORMAL;
-				sizep1:= PMG_SIZE_NORMAL;
-				sizep2:= PMG_SIZE_NORMAL;
-				sizep3:= PMG_SIZE_NORMAL;
-				SetVBLI(@GameVBI);
+        colpm0:=202;
+        colpm1:=250;
+        colpm2:=136;
+        colpm3:=36;				
+        sizep0:= PMG_SIZE_NORMAL;
+        sizep1:= PMG_SIZE_NORMAL;
+        sizep2:= PMG_SIZE_NORMAL;
+        sizep3:= PMG_SIZE_NORMAL;
         PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
+        SetVBLI(@GameVBI);
         NMIEN := 192;
 
-        show_countdown:=180;
-				mind_color:=$3F;	
-
-				f :=0; 				
+		show_countdown:= 180;
+		mind_color:=$3F;	
+		
+		f :=0; 				
 //	for i := 0 to 255 do
 //	begin
 //		poke (game_screen + i,i);
 //	end;	
-				prior_rt_clock := RT_CHECK;
+		prior_rt_clock := RT_CHECK;
         repeat 				
-						if (minds_found > 0) and (show_countdown = 0) then
-							begin
-										minds_found :=0;
-										a := (character_px - 48) DIV 4;
-										b := (character_py - 24) DIV 8;
-										for j := b - 2 to b + 3 do
-											for i := a - 2 to a + 3 do
-												begin
-														c := game_screen + i + 40 * j;
-														e := peek(c);
-														if e=65 then poke (c,193);												
-												end;			            					            										
-							end;							
-						if prior_rt_clock <> RT_CHECK then begin
-				        minds_found :=0;
-							  prior_rt_clock := RT_CHECK;
-								fillbyte(pointer(PMBNK0+prior_py),14,0);										
-								move(spriteframes[f],pointer(PMBNK0+character_py),14);
-								hposp0:=character_px;
-								prior_py := character_py;									
-			  				if show_countdown >0 then
-			  					show_countdown := show_countdown - 1			  					
-			  				else if mind_color > $32 then begin; 
-					  					mind_color := mind_color - 1;			  						
-					  					if mind_color = $32 then mind_color := $22					  					
-							  end;												
-							 if (mind_color = $22) and (show_countdown = 0) then
-												begin			  					
-										        stick_read := (porta and 15);
-														asm {
-															lda RT_CHECK
-															AND #4
-															STA G
-								            };		
-									          f:=0;  
-									          if (stick_read and 1=0) then begin
-									          	character_py := character_py - 1;
-									          	f:=1+G;
-									          end;
-									          if (stick_read and 2=0) then begin
-									          	character_py := character_py + 1;
-									          	f:=3+G;
-														end;
-									          if (stick_read and 4=0) then begin
-															character_px := character_px - 1;
-															f:=2+G;
-									          end;
-									          if (stick_read and 8=0) then begin
-									          	character_px := character_px + 1;
-									          	f:=4+G;
-									          end;
-			            			end;															            						            			
-												a := (character_px - 48) DIV 4;
-												b := (character_py - 24) DIV 8;
-												for j := b - 2 to b + 3 do
-													for i := a - 2 to a + 3 do
-														begin
-																c := game_screen + i + 40 * j;
-																e := peek(c);
-																if e=193 then
-																	begin
-																 	if (j=b) or (i=a) or (i=a+1) then	minds_under :=1;															 	
-																	 	poke (c,65);
-																	 	minds_found:=minds_found+1;
-																 end;
-														end;			            					            			
-								end;					          
+        if prior_rt_clock <> RT_CHECK then begin				              
+				prior_rt_clock := RT_CHECK;
+				fillbyte(pointer(PMBNK0+prior_py),14,0);										
+				move(spriteframes[f],pointer(PMBNK0+character_py),14);
+				hposp0:=character_px;
+				prior_py := character_py;									
+        		if show_countdown >0 then
+        			show_countdown := show_countdown - 1			  					
+        		else if mind_color > $32 then begin; 
+					mind_color := mind_color - 1;			  						
+					if mind_color = $32 then mind_color := $22					  					
+        	  	end;												
+        	    if (mind_color = $22) and (show_countdown = 0) then											                                                                                                                                                                                     					
+                        begin			  				                                            
+						a := (character_px - 47) DIV 4;
+						b := (character_py - 24) DIV 8;
+                        //   a := 9;
+						if (minds_found > 0) then begin;
+                              for j := b - 2 to b + 3 do
+                                    if (j >=0) and (j < 25) then begin                                            
+                                    row_addr :=   screen_rows [j] + a;
+                                    for c := row_addr  - 2 to row_addr  + 3 do
+                                  	   begin
+											e := peek(c);
+											if e = 65 then poke (c,193);                                                          												
+                                  	    end;
+                                      end;           					            										
+                                end;
+								if character_status = 0 then begin 
+									stick_read := (porta and 15);				
+						          	  g := (RT_CHECK and 4); 
+									//		asm {
+									//		lda RT_CHECK
+									//		AND #4
+									//		STA G
+								    //};		
+
+									f:=0;  
+						          	if (stick_read and 1=0) then begin
+						          		character_py := character_py - 1;
+						          		f:=1+G;
+						          	end;
+						          	if (stick_read and 2=0) then begin
+						          		character_py := character_py + 1;
+						          		f:=3+G;
+									end;
+						          	if (stick_read and 4=0) then begin
+										character_px := character_px - 1;
+										f:=2+G;
+						          	end;
+						          	if (stick_read and 8=0) then begin
+						          		character_px := character_px + 1;
+						          		f:=4+G;
+						          	end;															            						            			
+									a := (character_px - 47) DIV 4;
+									b := (character_py - 24) DIV 8;
+									colpm0:=202;
+									g:=0;                                    
+  									for j := b - 2 to b + 3 do begin 
+										if (j >=0) and (j < 25) then begin                                            
+                                            row_addr :=   screen_rows [j] + a;
+                                            h :=0;
+                                            for c := row_addr  - 2 to row_addr  + 3 do begin
+												e := peek(c);
+												if e=193 then begin 
+                                                    poke (c,65);
+                                                    minds_found :=+1;
+                                                    if ((g = 1) or (g = 2)) and ((h = 2) or  (h = 3))  then begin
+                                                        colpm0:=15;                    
+														end;                                                                                                                                                                                                                                                                                      												
+												end;
+                                        		h := h + 1;
+											end;                                            	  					            										
+										end;
+										g := g + 1;
+									end;			
+								end;					
+								if (character_status > 0) and (character_status < 16) then begin 
+								    character_status := character_status + 1;								
+								end;
+							end;
+						end;					          
 				until CRT_KeyPressed;
 	
     until false;
