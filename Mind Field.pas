@@ -34,10 +34,11 @@ uses atari5200, b_system, b_crt, b_pmg, b_set_interupts;    // CRT using 8-bit O
 // 	of          or			packed		procedure       program
 // 	record      repeat      set			then            to
 // 	type        until		var			while			with
-
+    	
 const  
   {$ifdef Platform_Atari_Antic}
-	{$R 'resources.rc'}	     
+	{$R 'resources.rc'}
+    	     
   SCREEN_ADDR						= $0800;
   GAME_SCREEN						= SCREEN_ADDR + 40;
   PMBANK                = $1800;
@@ -45,22 +46,29 @@ const
   LOCALVAR              = VARBANK + $E0;
   CHARSET_GAME          = $A400;
   CHARSET_TITLE         = $A800;
-  TITLE_DATA						= $AC00;
-  CHARSET_BASE					= $A4;
+  TITLE_DATA			= $AC00;
+  SOUND_COMMANDER       = $AE00;
+  CHARSET_BASE			= $A4;
+
+  PLAY_SOUNDS           = SOUND_COMMANDER + $0000;	
+  START_SOUND           = SOUND_COMMANDER + $009F;
+  GET_NEXT_MUSIC_NOTE   = SOUND_COMMANDER + $00F6;
+  STOP_SOUND            = SOUND_COMMANDER + $0189;
+  SILENCE               = SOUND_COMMANDER + $019E;
   {$endif}
   
   {$ifdef Platform_Commodor64}
-	SCREEN_ADDR						= $0400; // 1024
-	GAME_SCREEN						= SCREEN_ADDR + 40;
-  VARBANK               = $1800;
-  COLORMAP              = $D800; //  55296-56295
-  {$endif}
+  SCREEN_ADDR			 = $0400; // 1024
+  GAME_SCREEN			 = SCREEN_ADDR + 40;
+  VARBANK                = $1800;
+  COLORMAP               = $D800; //  55296-56295
+  {$endif}           
   
   MIBANK                 = PMBANK+$0300;
-  PMBNK0	               = PMBANK+$0400;
-  PMBNK1	               = PMBANK+$0500;
-  PMBNK2	               = PMBANK+$0600;
-  PMBNK3	               = PMBANK+$0700;  
+  PMBNK0	             = PMBANK+$0400;
+  PMBNK1	             = PMBANK+$0500;
+  PMBNK2	             = PMBANK+$0600;
+  PMBNK3	             = PMBANK+$0700;  
 
 	//{$ifdef Platform_Atari_Antic}
 	{$ifdef Platform_Atari_8_bit or $ifdef Platform_Atari_5200}
@@ -444,6 +452,7 @@ P019:ARRAY[0..13] OF BYTE = (
 
   {$i 'Mind_Field_Interupts.inc'}
 
+
 var
     RT_CHECK								: byte absolute $14;
     PRIOR								    : byte absolute $D01B;
@@ -478,10 +487,6 @@ var
   j :       Byte absolute VARBANK + $012;
   k :       Byte absolute VARBANK + $014;
   l :       Byte absolute VARBANK + $016;
-  m :       Byte absolute VARBANK + $018;
-  n :       Byte absolute VARBANK + $01A;
-  o :       Byte absolute VARBANK + $01C;
-  p :       Byte absolute VARBANK + $01E;
 
   
     character_px :              byte absolute VARBANK + $020;
@@ -502,11 +507,56 @@ var
     titlephase:                 byte absolute VARBANK + $03C;
     score:                      word absolute VARBANK + $03E;
     lives :                     byte absolute VARBANK + $040;
+    level :                     byte absolute VARBANK + $041;
     topMem :                    word absolute VARBANK + $042;
     chbase1 :                   byte absolute VARBANK + $044;
     row_addr :                  word absolute VARBANK + $046; 
+	exit_cx :					byte absolute VARBANK + $048;
+	exit_cy :					byte absolute VARBANK + $049; 
+	exit_pl :					byte absolute VARBANK + $04A;
+	exit_pr :					byte absolute VARBANK + $04B; 
 
     hiscore  : array [0..10] of word absolute VARBANK + $100; //  can we initialize it as blank?    = (0,7500,5500,3500,2500,0500,00,00,00,00,0);
+
+
+procedure Show_Hi_Scores;
+   begin 	
+		CRT_GotoXY(10, 06); 
+		CRT_WRITE('SCORE : '~);
+		CRT_GOTOXY(18, 06);
+		CRT_WRITE (score);
+		CRT_GotoXY (8,07);
+		CRT_WRITE ('TODAYS HIGH SCORES.'~);
+  		for i := 1 to 5 do
+		    begin;
+		      if k = i then
+			        begin 
+			          CRT_GOTOXY(12,08+i);
+			          CRT_WRITE('*'~);
+			        end;
+			      CRT_GOTOXY(14, 08+i);  
+			      CRT_WRITE (i);
+			      CRT_WRITE (' :'~);
+			      CRT_GotoXY(18, 08+i);      
+			      CRT_WRITE(hiscore[i]);
+     		end;  
+	end;
+
+procedure Show_Options_Screen;
+	begin
+	end;
+
+procedure Show_Story_Screen;
+	begin
+
+asm {
+//    ORG 32768
+//    ICL "inflate_2017_ver4.asm"
+//    ORG 46080
+//    INS "roman10.fnt" 
+};
+
+	end;
 
 
 procedure ShowTitleScreen;
@@ -515,8 +565,7 @@ begin
   // InitGraph(0);
   // chbase1 :=180;
   topMem := chbase1 * 256;
-  titlephase := 0;
-  score := 4250;
+  titlephase := 0;  
 asm {
 ;	  ICL "Atari 8-bit Equates.asm"
 		
@@ -542,39 +591,17 @@ asm {
     LDA #$A8
     STA NDX3
     };		
-  dmactl :=0;		 
-  nmien :=0;
-  CRT_INIT (SCREEN_ADDR,40,25);
-  SetIntVec(iDLI, @title00dli);
-  //SetIntVec(iVBL, @TitleVBI);
-  SetVBLI(@TitleVBI);
-  CRT_CLEAR;  
-  DLISTW := word(@display_list_title); 	 
-  SDLSTW := word(@display_list_title); 
-  SAVMSC := word(SCREEN_ADDR); 
-  SETCHARSET(HI(CHARSET_GAME));
-  CHBAS := HI(CHARSET_GAME);
-  CRT_GotoXY(0, 0); 
-  CRT_WRITE('           ATARI 8-BIT VERSION          '~);
-  CRT_WRITE(' PROGRAMMING             PETER J. MEYER '~);
-  CRT_WRITE('              (YOUR NAME COULD BE HERE) '~);
-  CRT_WRITE(' GRAPHICS                               '~);
-  CRT_WRITE(' SOUND AND MUSIC                        '~);        
- TMP5:=0; 
-  gprior := 1;
-  prior := 1;
-  k := 6;
-  i := 5;
-		 
-	color0:=$D8;	
-	color1:=$06;
-	color2:=$aa;
-	color3:=54;
-	color4:=34;
-
-  PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
- nmien :=192;
-	
+	dmactl :=0;		 
+	nmien :=0;
+	CRT_INIT (SCREEN_ADDR,40,25);
+	SetIntVec(iDLI, @title00dli);
+	//SetIntVec(iVBL, @TitleVBI);
+	SetVBLI(@TitleVBI);
+	CRT_CLEAR;  
+	fillbyte(pointer(PMBNK0),255,0);
+	fillbyte(pointer(PMBNK1),255,0);
+	fillbyte(pointer(PMBNK2),255,0);
+	fillbyte(pointer(PMBNK3),255,0);
   repeat     
       if score>hiscore[i] then 
         begin;
@@ -591,8 +618,37 @@ asm {
       until i = k;
       hiscore [k] := score
     end;
+	
+	DLISTW := word(@display_list_title); 	 
+	SDLSTW := word(@display_list_title); 
+	SAVMSC := word(SCREEN_ADDR); 
+	SETCHARSET(HI(CHARSET_GAME));
+	CHBAS := HI(CHARSET_GAME);
+	CRT_GotoXY(0, 0); 
+	CRT_WRITE('           ATARI 8-BIT VERSION          '~);
+	CRT_WRITE(' PROGRAMMING             PETER J. MEYER '~);
+	CRT_WRITE('              (YOUR NAME COULD BE HERE) '~);
+	CRT_WRITE(' GRAPHICS                               '~);
+	CRT_WRITE(' SOUND AND MUSIC                        '~);        
+	TMP5:=0; 
+	gprior := 1;
+	prior := 1;
+	k := 6;
+	i := 5;
+			 
+	color0:=$D8;	
+	color1:=$06;
+	color2:=$aa;
+	color3:=54;
+	color4:=34;
+
+  PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
+ nmien :=192;
+	
    CRT_GotoXY(7, 15);
    CRT_WRITE('PRESS START TO BEGIN.'~);
+   Show_Options_Screen;
+   Show_Hi_Scores;
    poke (hposp0,124);      
    
  repeat 
@@ -615,50 +671,17 @@ asm {
      until CRT_StartPressed = false;
  
  
-asm {
-//    ORG 32768
-//    ICL "inflate_2017_ver4.asm"
-//    ORG 46080
-//    INS "roman10.fnt" 
-};
 
 end;
 
 
-procedure	Show_High_Scores;
-   begin 	
-	 CRT_GotoXY(10, 06); 
-   CRT_WRITE('SCORE : '~);
-   CRT_GOTOXY(18, 06);
-   CRT_WRITE (score);
-   CRT_GotoXY (8,07);
-   CRT_WRITE ('TODAYS HIGH SCORES.'~);
-   for i := 1 to 5 do
-    begin;
-      if k = i then
-        begin 
-          CRT_GOTOXY(12,08+i);
-          CRT_WRITE('*'~);
-        end;
-      CRT_GOTOXY(14, 08+i);  
-      CRT_WRITE (i);
-      CRT_WRITE (' :'~);
-      CRT_GotoXY(18, 08+i);      
-      CRT_WRITE(hiscore[i]);
-     end;  
-	end;
 
-procedure	Show_Options_Screen;
-	begin
-	end;
 
-procedure	Show_Story_Screen;
-	begin
-	end;
 
 
 procedure Initialize_Level;
 	begin
+	crt_clear;
 	mind_color:=70;
 	for i := 0 to 255 do
 	
@@ -698,9 +721,9 @@ asm {
 };
 	end;	
 	begin
-				character_px :=124;
-				character_py :=208;
-				character_status :=0;
+               character_px :=124;
+               character_py :=216;
+               character_status :=0;
                 a := (character_px - 48) DIV 4;
 				b := (character_py - 24) DIV 8;
 				for j := b - 2 to b + 3 do
@@ -709,84 +732,63 @@ asm {
 								c := game_screen + i + 40 * j;
 								e := peek(c);
 								if e=193 then poke (c,0);
-						end;
-					
-						
-				
-	end;
+						end;				
+			end;
+			exit_cx := random(19) * 2;
+			exit_cy := 0;
+			exit_pl := exit_cx * 4 + 46;
+			exit_pr := exit_pl + 8;
+			dpoke (game_screen + exit_cx,19274);
+			dpoke (game_screen + exit_cx + 40,0);
 	end;
 	
 
 
 procedure Display_Information_Line;
-begin
-  CRT_GotoXY(0, 0);
-  CRT_WRITE('SCORE:'~);
-  CRT_GotoXY(6, 0);
-  CRT_WRITE (score);
+	begin
+	CRT_GotoXY(0, 0);
+	CRT_WRITE('SCORE:'~);
+	CRT_GotoXY(6, 0);
+	CRT_WRITE (score);
+	
+	CRT_GotoXY(12, 0);
+	CRT_WRITE('LIVES:'~);
+	CRT_GotoXY(18, 0);
+	CRT_WRITE (lives);
+	
+	CRT_GotoXY(26, 0);
+	CRT_WRITE('LEVEL:'~);
+	CRT_GotoXY(32, 0);
+	CRT_WRITE (level);
+end;
 
-  CRT_GotoXY(14, 0);
-  CRT_WRITE('LIVES:'~);
-  CRT_GotoXY(20, 0);
-  CRT_WRITE (lives);
+procedure Display_Game_Over;
+	Begin  
+	CRT_GotoXY(12, 0);
+	CRT_WRITE('GAME OVER    '~);
 
 end;
-// CHARSET_ADDRESS rcdata 'Mind Field\MINDFIELD.FNT'
 
-{***************************************************************************************}
-{************************************** MAIN *******************************************}
-{***************************************************************************************}
+procedure Start_Sound_Effect(sfnum,sfspeed:byte); assembler;  Register;
+asm {
+	LDX sfnum
+	LDA sfspeed
+	JSR START_SOUND
+};
+end;
+
+procedure Silence_Sound_Effects; assembler;
+asm {
+	JSR SILENCE
+};
+end;
 
 
-begin
-
-    repeat
-		ShowTitleScreen;
-        
-// Game Initialization here
-        score := 0;
-        lives := 5;
-        CRT_INIT (SCREEN_ADDR,40,26);
-        CRT_CLEAR;  
-        Display_Information_Line;
-        DLISTW := word(@display_list_game); 	 
-        SDLSTW := word(@display_list_game); 
-        SAVMSC := word(SCREEN_ADDR); 
-        SETCHARSET(HI(CHARSET_GAME));
-        CHBAS := HI(CHARSET_GAME);
-        Initialize_Level;
-        color0:=142;	
-        color1:=212;        
-        color3:=150;
-        color4:=34;
-        colpm0:=202;
-        colpm1:=250;
-        colpm2:=136;
-        colpm3:=36;				
-        sizep0:= PMG_SIZE_NORMAL;
-        sizep1:= PMG_SIZE_NORMAL;
-        sizep2:= PMG_SIZE_NORMAL;
-        sizep3:= PMG_SIZE_NORMAL;
-        PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
-        SetVBLI(@GameVBI);
-        NMIEN := 192;
-
-		show_countdown:= 180;
-		mind_color:=$3F;	
-		
-		f :=0; 				
-//	for i := 0 to 255 do
-//	begin
-//		poke (game_screen + i,i);
-//	end;	
-		prior_rt_clock := RT_CHECK;
-        repeat 				
+procedure Main_Game_Loop;
+      begin
+	  repeat 				
         if prior_rt_clock <> RT_CHECK then begin				              
-				prior_rt_clock := RT_CHECK;
-				fillbyte(pointer(PMBNK0+prior_py),14,0);										
-				move(spriteframes[f],pointer(PMBNK0+character_py),14);
-				hposp0:=character_px;
-				prior_py := character_py;									
+				prior_rt_clock := RT_CHECK;																							
         		if show_countdown >0 then
         			show_countdown := show_countdown - 1			  					
         		else if mind_color > $32 then begin; 
@@ -848,23 +850,134 @@ begin
 												if e=193 then begin 
                                                     poke (c,65);
                                                     minds_found :=+1;
-                                                    if ((g = 1) or (g = 2)) and ((h = 2) or  (h = 3))  then begin
-                                                        colpm0:=15;                    
+                                                    if ((g = 1) or (g = 2)) and ((h = 2) or  (h = 3))  then begin        
+                                                        colpm0:=15;  
+                                                        character_status := 1;
+														Start_Sound_Effect(0,1);              
 														end;                                                                                                                                                                                                                                                                                      												
 												end;
                                         		h := h + 1;
 											end;                                            	  					            										
 										end;
 										g := g + 1;
-									end;			
-								end;					
-								if (character_status > 0) and (character_status < 16) then begin 
-								    character_status := character_status + 1;								
+									end;
+									if character_py <38 then begin
+									  	character_py := 38;
+										if (character_px > exit_pl) and (character_px < exit_pr) then begin
+											 if character_status = 0 then begin 
+											 	character_status := 32;
+												Start_Sound_Effect(1,1);
+											end;																				
+										end;									
+									end;									
+                                end;			
+								if (character_status > 0) and (character_status < 31) then begin 
+								    character_status := character_status + 1;
+								    if character_status = 30 then Character_status := 128;
+									if character_status < 16 then begin
+                                    	f := 16 + character_status div 4;
+                                    end; 
+									if character_status > 15 then begin
+										f := 19;
+										character_px :=0;
+									end;			   									    
 								end;
+								if (character_status > 31) and (character_status < 64) then begin 
+								    character_status := character_status + 1;
+								    if (character_status = 64) then character_status := 144;  
+									if (character_status and 1 = 1) then
+										dpoke (game_screen + exit_cx,19274)
+									else
+									    dpoke (game_screen + exit_cx,0);																
+								end;
+
 							end;
-						end;					          
-				until CRT_KeyPressed;
+                			//  ** This section has been replaced by a short piece of assemble code iside "Mind_Field_Interupts Game VBI section"
+				
+				            // fillbyte(pointer(PMBNK0+prior_py),14,0);
+                            // move(spriteframes[f],pointer(PMBNK0+character_py),14);
+                            // hposp0:=character_px;
+
+
+
+
+					end;          
+					if CRT_KeyPressed then Character_status := 132;
+				until (Character_status >= 128);
+end;
+// CHARSET_ADDRESS rcdata 'Mind Field\MINDFIELD.FNT'
+// sound_commander RCASM 'sound_commander.asm'
+
+
+{***************************************************************************************}
+{************************************** MAIN *******************************************}
+{***************************************************************************************}
+
+
+begin
+	score := 0;
+	repeat    
+		Silence_Sound_Effects;
+		ShowTitleScreen;
+		score := 0;
+	    lives := 5;
+	    level := 1;
+	    character_status := 0;
+	    CRT_INIT (SCREEN_ADDR,40,26);
+	            
+// Game Initialization here
+	    CRT_CLEAR;  
+	    fillbyte(pointer(PMBNK0),255,0);
+	    fillbyte(pointer(PMBNK1),255,0);
+	    fillbyte(pointer(PMBNK2),255,0);
+	    fillbyte(pointer(PMBNK3),255,0);
+	    
+	    DLISTW := word(@display_list_game); 	 
+	    SDLSTW := word(@display_list_game); 
+	    SAVMSC := word(SCREEN_ADDR); 
+	    SETCHARSET(HI(CHARSET_GAME));
+	    CHBAS := HI(CHARSET_GAME);
+	    repeat		
+		    Initialize_Level;
+		    Silence_Sound_Effects;
+	        color0:=142;	
+	        color1:=212;        
+	        color3:=150;
+	        color4:=34;
+	        colpm0:=202;
+	        colpm1:=250;
+	        colpm2:=136;
+	        colpm3:=36;				
+	        sizep0:= PMG_SIZE_NORMAL;
+	        sizep1:= PMG_SIZE_NORMAL;
+	        sizep2:= PMG_SIZE_NORMAL;
+	        sizep3:= PMG_SIZE_NORMAL;
+	        PMG_Init(hi(PMBANK), 48  OR PMG_sdmctl_DMA_both OR PMG_sdmctl_oneline OR PMG_sdmctl_screen_normal);
+	        Display_Information_Line;
+			SetVBLI(@GameVBI);	        
+	        NMIEN := 192;
 	
-    until false;
+			show_countdown:= 180;
+			mind_color:=$3F;	
+			
+			f :=0; 				
+//	for i := 0 to 255 do
+//	begin
+//		poke (game_screen + i,i);
+//	end;	
+			prior_rt_clock := RT_CHECK;
+	  
+	  		Main_Game_Loop;
+	  		
+	  		if (character_status = 128) then lives := lives-1; 
+		    if (character_status = 144) then begin
+		    	score := score + 10;
+		    	level := level + 1;
+			end; 
+	    until lives = 255;
+	until false
+
+
+
 end.
 

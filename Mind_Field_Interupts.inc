@@ -31,6 +31,59 @@ inc_rt_clock
 		bne no_inc_other_clock
 		inc rtclok
 no_inc_other_clock	
+
+
+      ;;  fillbyte(pointer(PMBNK0+prior_py),14,0);
+      ;;  move(spriteframes[f],pointer(PMBNK0+character_py),14);
+      ;;  hposp0:=character_px;
+
+
+	  	LDA prior_py
+	  	STA NDX2
+	  	LDA >PMBNK0
+	  	STA NDX3
+	  	
+	  	LDA #0
+	  	LDY #13
+Clear_Character_Prior_Loop
+		STA (NDX2),Y
+		DEY
+		BPL Clear_Character_Prior_Loop   	
+	  		
+	  	LDA character_py
+	    STA NDX2
+	    LDA >PMBNK0
+	    STA NDX3
+	      
+	    LDA F
+	    ASL
+	    TAY
+	    
+	    LDA adr.spriteframes + 0,Y
+	    STA NDX0
+	  	  
+	    LDA adr.spriteframes + 1,Y
+	    STA NDX1
+	  	  	
+	  	LDY #13
+Copy_Character_Image_Loop
+		LDA (NDX0),Y
+		STA (NDX2),Y
+		DEY
+		BPL Copy_Character_Image_Loop
+		
+		LDA character_px
+		STA HPOSP0   	
+    
+      	LDA character_py 
+		STA prior_py 
+
+
+
+		JSR PLAY_SOUNDS      
+
+
+
     };  
 //
 // Can we do some no ASM within the VBI?
@@ -42,7 +95,11 @@ no_inc_other_clock
 end;
 
 procedure PauseVBI;assembler;interrupt;
-  asm {};
+	asm {
+	
+	
+	
+	};
 end;
 
 procedure title00dli;assembler;interrupt;
@@ -118,3 +175,4 @@ procedure game03dli;assembler;interrupt;
 	asm {phr
 	plr};
 end;
+
